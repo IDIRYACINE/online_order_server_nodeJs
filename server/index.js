@@ -13,8 +13,7 @@ app.get("/api", (req, res) => {
 
 app.get("/db", (req, res) => {
   let db = new ProductsDatabase();
-  db.connect();
-
+  
   res.json({ message: "Hello from !" });
 });
 
