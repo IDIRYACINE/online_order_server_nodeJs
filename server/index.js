@@ -1,6 +1,6 @@
 
 import express from 'express';
-import ProductsDatabase from './src/Database/ProductsDatabase.js';
+import App from './src/App.js';
 
 const PORT = process.env.PORT || 3001;
 
@@ -12,8 +12,11 @@ app.get("/api", (req, res) => {
 
 
 app.get("/db", (req, res) => {
-  let db = new ProductsDatabase();
-  
+  let app = new App(false);
+  let ordersService = app.ordersService;
+
+  ordersService.subscribeToNewOrders();
+
   res.json({ message: "Hello from !" });
 });
 

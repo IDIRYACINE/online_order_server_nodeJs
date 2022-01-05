@@ -1,8 +1,8 @@
-import { initializeApp } from 'firebase/app';
-import {fs} from 'fs';
+import admin from 'firebase-admin';
+import * as fs from 'fs';
+import OrdersService from './Orders/OrdersService.js';
 
 class App{
-    #app;
     #authenticationService;
     #ordersService;
     #storageService;
@@ -12,10 +12,12 @@ class App{
 
         }
         else{
-            const firebaseConfig = JSON.parse(fs.readFileSync("googleServices.json"));
-            this.#app = initializeApp(firebaseConfig);
+            admin.initializeApp({credential : admin.credential.cert('./servicesAccount.json'),
+            databaseURL : "https://online-order-client-default-rtdb.europe-west1.firebasedatabase.app"});
         }
+        this.#ordersService = new OrdersService(admin.database());
     }
+
   
     get authenticationService(){
         return this.#authenticationService;
@@ -31,4 +33,4 @@ class App{
     
 }
 
-export {App as default };
+export {App as default};
