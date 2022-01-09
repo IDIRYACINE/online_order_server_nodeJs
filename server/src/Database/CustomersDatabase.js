@@ -10,6 +10,7 @@ class CustomersDatabase{
         secondaryTable : "Extras",
         secondaryTableAttrbs : ["Rating","NegativeRating","Latitude","Longitude","Addresse"]
     }
+    
     #connection
 
    
@@ -63,7 +64,7 @@ class CustomersDatabase{
 
     async UpdateCustomerExtras(extras){
         let update_customer_extras_query = "UPDATE "+ this.#configurations.secondaryTable
-        +#UpdateValuesQueryHelper(extras,extras.length) 
+        + #UpdateValuesQueryHelper(extras,extras.length) 
 
         this.#connection.exec(update_customer_extras_query)
     }
@@ -116,14 +117,16 @@ class CustomersDatabase{
     async GetCustomerInfos(customerId){
         let get_customer_infos = "SELECT "+ this.#GetValuesHelper("infos")
             +" FROM "+this.#configurations.mainTable+"WHERE Id = "+ customerId
-        this.#connection.exec(get_customer_infos)
+
+        return await this.#connection.run(get_customer_infos)
 
     }
 
     async GetCustomerExtras(customerId){
         let get_customer_extras = "SELECT "+ this.#GetValuesHelper("extras") 
             +" FROM "+this.#configurations.secondaryTable+"WHERE Id = "+ customerId
-        this.#connection.exec(get_customer_extras)
+        return await this.#connection.run(get_customer_extras)
+
     }
 
     #GetValuesHelper(type){

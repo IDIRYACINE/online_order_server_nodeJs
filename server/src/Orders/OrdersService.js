@@ -7,27 +7,27 @@ class OrdersService{
 
     constructor(database){
         this.#firebaseRealTime = database;
-        this.#listenToOrdersOnFirebase();
+        this.#ListenToOrdersOnFirebase();
     }
 
-    #listenToOrdersOnFirebase(){
-       
-        const ordersRef =  this.#firebaseRealTime.ref("Orders");
+    #ListenToOrdersOnFirebase(){
+        const ordersRef =  this.#firebaseRealTime.ref("Orders")
 
-        ordersRef.on("value" ,(snapshot) => {
-            console.log(snapshot.val());
+        ordersRef.on("child_added" ,(snapshot) => {
+            this.#subscribers.forEach(subscriber =>{
+                subscriber.NewOrder(snapshot.val())
+            })
         })
-
-        this.#firebaseRealTime.ref("version").get().then((snapshot) => {
-            if (snapshot.exists()) {
-              console.log(snapshot.val());
-            }});
-           
     
     }
 
-    subscribeToNewOrders(subscriber){
+    SubscribeToNewOrders(subscriber){
         this.#subscribers.push(subscriber);
+    }
+
+    UpdateOrderStatus(status){
+        const statusRef = this.#firebaseRealTime.ref("OrdersStatus")
+        statusRef.child(status.orderId).set(status.value)
     }
 
 }
