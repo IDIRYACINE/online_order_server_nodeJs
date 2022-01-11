@@ -1,7 +1,9 @@
 import sqlite3 from 'sqlite3'
 import {open ,Database} from 'sqlite'
+import AttributeHolder from './Repository/AttributeHolder'
 
 class CustomersDatabase{
+    
     #configurations = {
         databaseName : "customers.db",
         databaseUrl : "./data",
@@ -11,16 +13,16 @@ class CustomersDatabase{
         secondaryTableAttrbs : ["Rating","NegativeRating","Latitude","Longitude","Addresse"]
     }
     
-    #connection
+    #connection : Database
 
    
     async connect(){
         this.#connection = await open({
-            filename: this.#configuration.databaseUrl + '/' +this.#configuration.databaseName,
+            filename: this.#configurations.databaseUrl + '/' +this.#configurations.databaseName,
             driver: sqlite3.Database
         })
 
-        const create_customers_table_query = "CREATE TABLE IF NOT EXISTS "+ this.#configuration.mainTable +" (\n"
+        const create_customers_table_query = "CREATE TABLE IF NOT EXISTS "+ this.#configurations.mainTable +" (\n"
         + "	Id String PRIMARY KEY,"
         + "	FullName text NOT NULL,"
         + "	Email text NOT NULL,"
@@ -28,7 +30,7 @@ class CustomersDatabase{
         + " BanStatus bool DEFAULT true "
         + ")"
 
-        const create_customers_extraInfos_table_query = "CREATE TABLE IF NOT EXISTS "+ this.#configuration.secondaryTable +" ("
+        const create_customers_extraInfos_table_query = "CREATE TABLE IF NOT EXISTS "+ this.#configurations.secondaryTable +" ("
         + "	Id String PRIMARY KEY,"
         + " Rating real DEFAULT 0,"
         + " NegativeRating real DEFAULT 0,"
@@ -41,39 +43,40 @@ class CustomersDatabase{
         this.#connection.exec(create_customers_extraInfos_table_query)
     }
 
-    async RegsiterCustomer(customer){
+    async RegsiterCustomer(customer : any){
         let register_customer_query = "INSERT INTO "+ this.#configurations.mainTable
             +this.#InsertValuesQueryHelper(customer , customer.length)
 
         this.#connection.exec(register_customer_query)
     }
 
-    async RegisterCustomerExtras(extras){
+    async RegisterCustomerExtras(extras : any){
         let register_customer_extras_query = "INSERT INTO "+ this.#configurations.secondaryTable
         + this.#InsertValuesQueryHelper(extras,extras.length) 
 
         this.#connection.exec(register_customer_extras_query)
     }
 
-    async UpdateCustomer(customer){
+    async UpdateCustomer(customer : any){
         let update_customer_query = "UPDATE "+ this.#configurations.mainTable
             +this.#UpdateValuesQueryHelper(customer , customer.length)
+            
 
         this.#connection.exec(update_customer_query)
     }
 
-    async UpdateCustomerExtras(extras){
+    async UpdateCustomerExtras(extras : any){
         let update_customer_extras_query = "UPDATE "+ this.#configurations.secondaryTable
-        + #UpdateValuesQueryHelper(extras,extras.length) 
+        + this.#UpdateValuesQueryHelper(extras,extras.length) 
 
         this.#connection.exec(update_customer_extras_query)
     }
 
-    #InsertValuesQueryHelper (attributes,length){
+    #InsertValuesQueryHelper (attributes : any,length : number){
         let attributesHelper = " ("
         let valuesHelper = "Values("
 
-        for(i = 0 ; i< length ; i++){
+        for(let i = 0 ; i< length ; i++){
             if(i < length-1){
                 valuesHelper += attributes[i].value + ","
                 attributesHelper += attributes[i].name +","
@@ -86,9 +89,9 @@ class CustomersDatabase{
         return attributesHelper + valuesHelper
     }
 
-    #UpdateValuesQueryHelper(attributes,length){
+    #UpdateValuesQueryHelper(attributes : any,length : number){
         let result = "Set "
-        for(i = 0 ; i< length ; i++){
+        for(let i = 0 ; i< length ; i++){
             if(i < length-1){
                 result += attributes[i].name + "=" +attributes[i].value + ","
             }
@@ -101,20 +104,20 @@ class CustomersDatabase{
     }
 
 
-    async BanCustomer(customer){
+    async BanCustomer(customer : any){
         let update_customer_banStatus_query = "UPDATE" + this.#configurations.secondaryTable
             + "Set BanStatus = " + customer.banStatus + " WHERE Id = " + customer.id
 
         this.#connection.exec(update_customer_banStatus_query)    
     }
 
-    async RateCustomer(customer){
+    async RateCustomer(customer : any){
         let update_customer_banStatus_query = "UPDATE" + this.#configurations.secondaryTable
-        + "Set Rating = Rating + ${customer.rating}, NegativeRating = NegativeRating +{customer.negativeRating} WHERE Id = ${customer.id}"
+        + "Set Rating = Rating + ${customer.rating}, NegativeRating = NegativeRating + ${customer.negativeRating} WHERE Id = ${customer.id}"
         this.#connection.exec(update_customer_banStatus_query)    
     }
 
-    async GetCustomerInfos(customerId){
+    async GetCustomerInfos(customerId : String){
         let get_customer_infos = "SELECT "+ this.#GetValuesHelper("infos")
             +" FROM "+this.#configurations.mainTable+"WHERE Id = "+ customerId
 
@@ -122,17 +125,17 @@ class CustomersDatabase{
 
     }
 
-    async GetCustomerExtras(customerId){
+    async GetCustomerExtras(customerId : String){
         let get_customer_extras = "SELECT "+ this.#GetValuesHelper("extras") 
             +" FROM "+this.#configurations.secondaryTable+"WHERE Id = "+ customerId
         return await this.#connection.run(get_customer_extras)
 
     }
 
-    #GetValuesHelper(type){
+    #GetValuesHelper(type : String ){
         let result = "("
-        const helper = (attributes)=>{
-            for (i = 0 ; i < attributes.length ; i++){
+        const helper = (attributes : Array<string>)=>{
+            for (let i = 0 ; i < attributes.length ; i++){
                 if(i < length-1){
                     result += attributes[i]
                 }
@@ -141,7 +144,7 @@ class CustomersDatabase{
                 }
             }
         }
-        if (type === "main"){
+        if (type === "infos"){
             helper(this.#configurations.mainTableAttrbs)
         }
         else{

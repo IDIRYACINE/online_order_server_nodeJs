@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
 import * as fs from 'fs';
-import OrdersService from './Orders/OrdersService.js';
+import OrdersService from './Orders/OrdersService.ts';
 
 class App{
     #authenticationService;

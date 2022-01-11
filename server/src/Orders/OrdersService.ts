@@ -1,8 +1,9 @@
 
 import admin from 'firebase-admin';
+import { Database } from 'firebase-admin/lib/database/database';
 
 class OrdersService{
-    #firebaseRealTime;
+    #firebaseRealTime : Database;
     #subscribers = [];
 
     constructor(database){
@@ -32,4 +33,4 @@ class OrdersService{
 
 }
 
-export { OrdersService as default}
+export default OrdersService 

@@ -2,7 +2,7 @@ import sqlite3 from 'sqlite3'
 import {open ,Database} from 'sqlite'
 
 class ProductsDatabase {
-    #connection;
+    #connection : Database;
 
     #configuration = {
         databaseName : "products.db",
@@ -11,7 +11,7 @@ class ProductsDatabase {
     }
 
     async connect(){
-        this.connection = await open({
+        this.#connection = await open({
             filename: this.#configuration.databaseUrl + '/' +this.#configuration.databaseName,
             driver: sqlite3.Database
         })
@@ -26,7 +26,7 @@ class ProductsDatabase {
         this.#connection.exec(create_categories_holder_query)
     }
 
-    async createCategory(name,image){
+    async createCategory(name : String ,image : String){
         let create_category_table_query = "CREATE TABLE IF NOT EXISTS "+ name +" (\n"
         + "	Id String PRIMARY KEY,\n"
         + "	Name text NOT NULL,\n"
@@ -43,7 +43,7 @@ class ProductsDatabase {
         
     }
 
-    async updateCategory(id ,attributes){
+    async updateCategory(id :string ,attributes : any){
         let update_product_query = "UPDATE ? SET "
         let query_helper = [this.#configuration.categoryTableName]
 
@@ -64,14 +64,14 @@ class ProductsDatabase {
         this.#connection.run(update_product_query,query_helper)
     }
 
-    async removeCategory(id){
+    async removeCategory(id : string){
         let drop_table_query = "DROP TABLE IF EXISTS ? "
         let unregister_table_query = "DELETE FROM ? WHERE Id = ?"
         this.#connection.run(drop_table_query , [id])
         this.#connection.run(unregister_table_query , [this.#configuration.categoryTableName , id])
     }
     
-    async createProduct(name , image , price , size , description ,categoryId,productsCount){
+    async createProduct(name :string, image:string , price:number , size :string, description :string,categoryId:string,productsCount:number){
         let insert_product_query = "INSERT INTO ? (Id,Name,Description,ImageUrl,Size,Price) VALUES(?,?,?,?,?,?)"
         let update_category_query = "UPDATE ? SET ProductsCount = ? WHERE Id = ?"
 
@@ -80,13 +80,13 @@ class ProductsDatabase {
 
     }
 
-    async removeProduct(productId , categoryId){
+    async removeProduct(productId :string, categoryId:string){
         let drop_product_query = " DELETE FROM ? WHERE Id = ? "
         this.#connection.run(drop_product_query , [categoryId , productId])
 
     }
 
-    async updateProduct(productId , categoryId , attributes){
+    async updateProduct(productId :string, categoryId :string, attributes:any){
         let update_product_query = "UPDATE ? SET "
         let query_helper = [categoryId]
 
@@ -108,4 +108,4 @@ class ProductsDatabase {
 
 }
 
-export {ProductsDatabase as default }
+export default ProductsDatabase 

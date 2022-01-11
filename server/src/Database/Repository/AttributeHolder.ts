@@ -1,7 +1,7 @@
 
 class AttributeHolder{
-    #name;
-    #value;
+    #name : String;
+    #value : any;
 
     constructor(name , value){
         this.#name = name;
@@ -21,3 +21,5 @@ class AttributeHolder{
     }
 
 }
+
+export default AttributeHolder

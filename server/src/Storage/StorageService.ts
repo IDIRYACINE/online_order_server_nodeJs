@@ -1,18 +1,18 @@
-import { getStorage,ref,getDownloadURL,uploadBytes} from "firebase/storage";
+import { getStorage,ref,getDownloadURL,uploadBytes, FirebaseStorage} from "firebase/storage";
 
 class StorageService{
-    #cloudStorage;
+    #cloudStorage : FirebaseStorage;
 
     constructor(firebaseApp){
         this.#cloudStorage = getStorage(firebaseApp) ;
     }
 
-    async UploadFile(file){
-        const storageRef = ref(storage, 'some-child');
+    async UploadFile(file : any){
+        const storageRef = ref(this.#cloudStorage);
         uploadBytes(storageRef, file)
     }
 
-    async DonwloadFile(downloadUrl){
+    async DonwloadFile(downloadUrl : string){
         const file = ref(this.#cloudStorage , downloadUrl)
         getDownloadURL(file).then((url) => {
            return url
@@ -23,4 +23,4 @@ class StorageService{
     }
 }
 
-export {StorageService as default}
+export default StorageService
