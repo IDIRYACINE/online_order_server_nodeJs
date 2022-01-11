@@ -1,34 +1,28 @@
 
-import admin from 'firebase-admin';
 import { Database } from 'firebase-admin/lib/database/database';
+import SocketManager from './SocketManager';
+import OrderStatus from './Types';
 
 class OrdersService{
     #firebaseRealTime : Database;
-    #subscribers = [];
+    #socketManager : SocketManager;
 
-    constructor(database){
+    constructor(database : Database , socketManger : SocketManager){
         this.#firebaseRealTime = database;
         this.#ListenToOrdersOnFirebase();
+        this.#socketManager = SocketManager.instance
     }
 
     #ListenToOrdersOnFirebase(){
         const ordersRef =  this.#firebaseRealTime.ref("Orders")
-
         ordersRef.on("child_added" ,(snapshot) => {
-            this.#subscribers.forEach(subscriber =>{
-                subscriber.NewOrder(snapshot.val())
-            })
+            this.#socketManager.BroadCastMessage("newOrder",snapshot.val())
         })
-    
     }
 
-    SubscribeToNewOrders(subscriber){
-        this.#subscribers.push(subscriber);
-    }
-
-    UpdateOrderStatus(status){
+    UpdateOrderStatus(status : OrderStatus){
         const statusRef = this.#firebaseRealTime.ref("OrdersStatus")
-        statusRef.child(status.orderId).set(status.value)
+        statusRef.child(status.id).set(status.state)
     }
 
 }

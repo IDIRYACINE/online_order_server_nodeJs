@@ -1,6 +1,6 @@
 import http from 'http'
-import { Server } from "socket.io"
-import { Handshake } from 'socket.io/dist/socket'
+import {Server} from "socket.io"
+import {Handshake } from 'socket.io/dist/socket'
 
 class SocketManager{
     static #instance : SocketManager
@@ -8,7 +8,7 @@ class SocketManager{
 
     private constructor(server : http.Server){
         this.#io = new Server(server)
-        this.#io.on("connection" , (socket) => {
+        this.#io.on("connection" , (socket : any) => {
             if(!this.#AuthoriseConnection(socket.handshake)){
                 socket.send('error' , "Unauthorised Connection")
                 socket.disconnect(true)
@@ -18,7 +18,9 @@ class SocketManager{
     }
 
     BroadCastMessage(type : string , message : any){
-        this.#io.emit(type,message)
+        if(this.#io.engine.clientsCount > 0){
+            this.#io.emit(type,message)
+        }
     }
 
     #AuthoriseConnection(key : Handshake) : boolean{
@@ -39,3 +41,4 @@ class SocketManager{
 }
 
 export default SocketManager
+

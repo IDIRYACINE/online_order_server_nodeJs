@@ -2,24 +2,23 @@
   "name": "online_order_server_nodeJs",
   "version": "1.0.0",
   "description": "",
-  "main": "server/index.js",
-  "target": "ES6",
-  "module": "commonjs",
-  "type": "module",
+  "main": "server/index.ts",
   "scripts": {
     "test": "mocha",
-    "start": "node server/index.js"
+    "start": "nodemon server/index.ts",
+    "build": "tsc -p ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^17.0.8",
-    "@types/ws": "^8.2.2",
     "firebase-admin": "^10.0.1",
-    "react-redux": "^7.2.6",
-    "redux": "^4.1.2",
     "socket.io": "^4.4.1",
     "sqlite3": "^5.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.4.0"
   }
 }

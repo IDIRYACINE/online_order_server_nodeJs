@@ -1,9 +1,9 @@
 
 class AttributeHolder{
-    #name : String;
+    #name : string;
     #value : any;
 
-    constructor(name , value){
+    constructor(name :string , value : any){
         this.#name = name;
         this.#value = value;
     }
