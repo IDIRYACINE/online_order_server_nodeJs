@@ -1,7 +1,7 @@
 
 import express from 'express';
-import App from './src/App';
-import Subscriber from './src/Orders/SocketManager';
+import App from './App';
+import Subscriber from './Orders/SocketManager';
 import http from 'http';
 
 const PORT = process.env.PORT || 3001;
