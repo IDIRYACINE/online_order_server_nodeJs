@@ -18,7 +18,7 @@ class App{
             admin.initializeApp({credential : admin.credential.cert('./servicesAccount.json'),
             databaseURL : "https://online-order-client-default-rtdb.europe-west1.firebasedatabase.app"});
         }
-        this.#ordersService = new OrdersService(admin.database(), SocketManager.instance);
+        this.#ordersService = new OrdersService(admin.database());
         this.#storageService = new StorageService(admin.storage())
         this.#authenticationService = new AuthenticationService(admin.auth())
     }

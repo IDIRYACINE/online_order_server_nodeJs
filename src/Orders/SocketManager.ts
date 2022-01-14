@@ -3,18 +3,24 @@ import {Server} from "socket.io"
 import {Handshake } from 'socket.io/dist/socket'
 
 class SocketManager{
-    static #instance : SocketManager
     #io : Server
 
-    private constructor(server : http.Server){
-        this.#io = new Server(server)
+    constructor(server : http.Server){
+        this.#io = new Server(server , {
+            cors : {
+                origin :['http://localhost:3000'],
+                allowedHeaders: ["my-custom-header"],
+                
+            }
+        })
+
         this.#io.on("connection" , (socket : any) => {
+            console.log("new client")
             if(!this.#AuthoriseConnection(socket.handshake)){
-                socket.send('error' , "Unauthorised Connection")
+                socket.send('invalid-user' , "Unauthorised Connection")
                 socket.disconnect(true)
             }
         })
-        
     }
 
     BroadCastMessage(type : string , message : any){
@@ -23,20 +29,9 @@ class SocketManager{
         }
     }
 
-    #AuthoriseConnection(key : Handshake) : boolean{
-        return true
+    #AuthoriseConnection(handshake : Handshake) : boolean{
+        return handshake.query.username === "idir"
     }
-
-
-    static get instance(){
-        return SocketManager.#instance
-    }
-
-    static createInstance(server : http.Server){
-        if(SocketManager.#instance === null){
-            SocketManager.#instance = new SocketManager(server)
-        }
-    }   
 
 }
 

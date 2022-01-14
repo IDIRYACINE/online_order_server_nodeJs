@@ -1,28 +1,25 @@
 
 import express from 'express';
 import App from './App';
-import Subscriber from './Orders/SocketManager';
-import http from 'http';
+import auth from './Orders/SocketManager';
+import SocketManager from './Orders/SocketManager';
 
 const PORT = process.env.PORT || 3001;
 const nodeApp = express();
-const server = http.createServer(nodeApp);
+const server = nodeApp.listen(PORT);
+//const app = new App(false);
+const io = new SocketManager(server)
 
-Subscriber.createInstance(server)
 
-
-nodeApp.get("/api", (req, res) => {
+nodeApp.get("/", (req, res) => {
   res.json({ message: "Hello from server!" });
 });
 
-
-nodeApp.get("/db", (req, res) => {
-  let app = new App(false);
-  let ordersService = app.ordersService;
-
-  res.json({ message: "Hello from !" });
+nodeApp.get("/admin/connect", (req, res) => {  
+  res.json({ message: "Hello from server!" });
 });
 
-nodeApp.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
+nodeApp.get("/db", (req, res) => {
+
+  res.json({ message: "Hello from !" });
 });

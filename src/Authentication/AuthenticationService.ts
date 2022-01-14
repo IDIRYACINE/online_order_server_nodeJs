@@ -6,6 +6,10 @@ class AuthenticationService{
     constructor(auth : Auth){
         this.#firebaseAuth = auth;
     }
+
+    LoginWithUsernameAndPassword(username:string , password : string) : boolean{
+        return false
+    }
 }
 
 export default AuthenticationService 

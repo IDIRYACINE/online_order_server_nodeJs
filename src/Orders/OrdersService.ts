@@ -7,10 +7,9 @@ class OrdersService{
     #firebaseRealTime : Database;
     #socketManager : SocketManager;
 
-    constructor(database : Database , socketManger : SocketManager){
+    constructor(database : Database ){
         this.#firebaseRealTime = database;
         this.#ListenToOrdersOnFirebase();
-        this.#socketManager = SocketManager.instance
     }
 
     #ListenToOrdersOnFirebase(){
@@ -24,6 +23,8 @@ class OrdersService{
         const statusRef = this.#firebaseRealTime.ref("OrdersStatus")
         statusRef.child(status.id).set(status.state)
     }
+
+    
 
 }
 
