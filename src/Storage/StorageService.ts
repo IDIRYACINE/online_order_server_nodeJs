@@ -1,19 +1,17 @@
 import {Storage } from "firebase-admin/lib/storage/storage";
 
-class StorageService{
-    #cloudStorage : Storage;
+let cloudStorage : Storage;
 
-    constructor(storage : Storage){
-        this.#cloudStorage = storage ;
-    }
 
-    async UploadFile(file : any){
+export async function UploadFile(file : any){
        
-    }
-
-    async DonwloadFile(downloadUrl : string){
-       
-    }
 }
 
-export default StorageService
+export async function DonwloadFile(downloadUrl : string){
+       
+}
+
+
+export default function StorageService(storage : Storage){
+    cloudStorage = storage
+}

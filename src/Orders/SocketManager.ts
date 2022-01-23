@@ -2,38 +2,40 @@ import http from 'http'
 import {Server} from "socket.io"
 import {Handshake } from 'socket.io/dist/socket'
 
-class SocketManager{
-    #io : Server
+let io : Server
 
-    constructor(server : http.Server){
-        this.#io = new Server(server , {
-            cors : {
-                origin :['http://localhost:3000'],
-                allowedHeaders: ["my-custom-header"],
-                
-            }
-        })
+function AuthoriseConnection(handshake : Handshake){
+    return handshake.query.username === "idir"
+}
 
-        this.#io.on("connection" , (socket : any) => {
-            console.log("new client")
-            if(!this.#AuthoriseConnection(socket.handshake)){
-                socket.send('invalid-user' , "Unauthorised Connection")
-                socket.disconnect(true)
-            }
-        })
-    }
-
-    BroadCastMessage(type : string , message : any){
-        if(this.#io.engine.clientsCount > 0){
-            this.#io.emit(type,message)
+export default function createSocket(server : http.Server){
+    io = new Server(server , {
+        cors : {
+            origin :['http://localhost:3000'],
+            allowedHeaders: ["my-custom-header"],
+            
         }
-    }
+    })
 
-    #AuthoriseConnection(handshake : Handshake) : boolean{
-        return handshake.query.username === "idir"
-    }
+    io.use((socket,next) => {
+        if(AuthoriseConnection(socket.handshake)){
+            next()
+        }
+        else{
+            next(new Error('invalid'))
+        }
+    })
+
+    io.on("connection" , (socket : any) => {
+        broadCastMessage('onConnectOrders' , [])
+    })
 
 }
 
-export default SocketManager
+export function broadCastMessage(type : string , message : any){
+    if(io.engine.clientsCount > 0){
+        io.emit(type,message)
+    }
+}
+
 

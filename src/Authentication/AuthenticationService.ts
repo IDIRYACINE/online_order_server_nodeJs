@@ -1,15 +1,15 @@
 import { Auth } from "firebase-admin/lib/auth/auth";
 
-class AuthenticationService{
-    #firebaseAuth : Auth;
 
-    constructor(auth : Auth){
-        this.#firebaseAuth = auth;
-    }
+let firebaseAuth : Auth;
 
-    LoginWithUsernameAndPassword(username:string , password : string) : boolean{
-        return false
-    }
+
+export function loginWithUsernameAndPassword(username:string , password : string) : boolean{
+    return false
 }
 
-export default AuthenticationService 
+export function setUpFirebaseAuth(auth : Auth){
+    firebaseAuth = auth
+}
+
+

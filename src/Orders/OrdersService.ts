@@ -1,31 +1,24 @@
 
 import { Database } from 'firebase-admin/lib/database/database';
-import SocketManager from './SocketManager';
+import {broadCastMessage} from './SocketManager';
 import OrderStatus from './Types';
 
-class OrdersService{
-    #firebaseRealTime : Database;
-    #socketManager : SocketManager;
+let firebaseRealTime : Database
 
-    constructor(database : Database ){
-        this.#firebaseRealTime = database;
-        this.#ListenToOrdersOnFirebase();
-    }
-
-    #ListenToOrdersOnFirebase(){
-        const ordersRef =  this.#firebaseRealTime.ref("Orders")
-        ordersRef.on("child_added" ,(snapshot) => {
-            this.#socketManager.BroadCastMessage("newOrder",snapshot.val())
-        })
-    }
-
-    UpdateOrderStatus(status : OrderStatus){
-        const statusRef = this.#firebaseRealTime.ref("OrdersStatus")
-        statusRef.child(status.id).set(status.state)
-    }
-
-    
-
+function listenToOrdersOnFirebase(){
+    const ordersRef =  firebaseRealTime.ref("Orders")
+    ordersRef.on("child_added" ,(snapshot) => {
+        broadCastMessage("newOrder",snapshot.val())
+    })
 }
 
-export default OrdersService 
+export function updateOrderStatus(status : OrderStatus){
+    const statusRef = firebaseRealTime.ref("OrdersStatus")
+    statusRef.child(status.id).set(status.state)
+}
+
+export function setUpFirebaseDatabase(database :Database) {
+    firebaseRealTime = database
+    listenToOrdersOnFirebase()
+}
+

@@ -7,9 +7,7 @@ import SocketManager from './Orders/SocketManager';
 const PORT = process.env.PORT || 3001;
 const nodeApp = express();
 const server = nodeApp.listen(PORT);
-//const app = new App(false);
-const io = new SocketManager(server)
-
+SocketManager(server)
 
 nodeApp.get("/", (req, res) => {
   res.json({ message: "Hello from server!" });
