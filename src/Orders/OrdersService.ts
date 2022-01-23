@@ -5,10 +5,16 @@ import OrderStatus from './Types';
 
 let firebaseRealTime : Database
 
-function listenToOrdersOnFirebase(){
+
+async function listenToOrdersOnFirebase(){
     const ordersRef =  firebaseRealTime.ref("Orders")
     ordersRef.on("child_added" ,(snapshot) => {
         broadCastMessage("newOrder",snapshot.val())
+    })
+
+    const ordersSnapshot : Map<string,any> =  (await ordersRef.get()).val()
+    ordersSnapshot.forEach((value,key) =>{
+        Orders.push(value)
     })
 }
 
@@ -17,8 +23,11 @@ export function updateOrderStatus(status : OrderStatus){
     statusRef.child(status.id).set(status.state)
 }
 
-export function setUpFirebaseDatabase(database :Database) {
+export async function setUpFirebaseDatabase(database :Database) {
     firebaseRealTime = database
     listenToOrdersOnFirebase()
 }
+
+export let Orders : any  = []
+
 
