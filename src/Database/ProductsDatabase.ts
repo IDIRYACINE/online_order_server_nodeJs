@@ -1,11 +1,55 @@
-import sqlite3 from 'sqlite3'
-import {open ,Database} from 'sqlite'
+
+import Database from 'better-sqlite3';
 
 type Category = {
-    name : String ,
-    imageUrl : String
+    Id : string,
+    Name : string ,
+    ImageUrl : string,
+    ProductsCount : number
 }
-    let connection : Database;
+
+type Product = {
+    Id : string,
+    Name :string,
+    ImageUrl:string ,
+    Price:number[] ,
+    Size :string[],
+    Description :string,
+}
+
+type FetchOptions = {
+    startIndex : string,
+    count : string,
+    categoryId?:string
+}
+
+type DeleteOptions = {
+    categoryId : string,
+    productId? : string
+}
+
+type Attribute = {
+    name :string,
+    value : any
+}
+
+type UpdateOptions = {
+    categoryId : string,
+    productId? : string,
+    updatedValues : Attribute[]
+}
+
+type CreateProductOptions = {
+    product:Product,
+    categoryId:string
+}
+
+type CreateCategoryOptions = {
+    category:Category
+}
+
+    let connection : Database.Database 
+
     const configuration = {
         databaseName : "products.db",
         databaseUrl : "./data",
@@ -13,102 +57,112 @@ type Category = {
     }
 
     export async function setUpProductsDataabase(){
-        connection = await open({
-            filename: configuration.databaseUrl + '/' +configuration.databaseName,
-            driver: sqlite3.Database
-        })
-
-        const create_categories_holder_query = "CREATE TABLE IF NOT EXISTS "+ configuration.categoryTableName +" (\n"
+        connection = new Database(configuration.databaseUrl + '/' +configuration.databaseName)
+       
+        const createCategoryHolder = connection.prepare("CREATE TABLE IF NOT EXISTS "+ configuration.categoryTableName +" (\n"
         + "	Id String PRIMARY KEY,\n"
         + "	Name text NOT NULL,\n"
         + "	ImageUrl text NOT NULL,\n"
         + " ProductsCount Integer "
-        + ")"
+        + ")")
 
-        connection.exec(create_categories_holder_query)
+        createCategoryHolder.run()
     }
 
-    export async function createCategory(category:Category){
-        let create_category_table_query = "CREATE TABLE IF NOT EXISTS "+ category.name +" (\n"
+    export async function createCategory(options:CreateCategoryOptions){
+        const category = options.category 
+
+        const createCategoryTable = connection.prepare("CREATE TABLE IF NOT EXISTS "+ category.Name +" (\n"
         + "	Id String PRIMARY KEY,\n"
         + "	Name text NOT NULL,\n"
         + "	ImageUrl text NOT NULL\n,"
         + "	Description text DEFAULT '' NOT NULL\n"
-        + ")"
+        + ")")
+        createCategoryTable.run()
 
-        let register_category_query = "INSERT INTO "+configuration.categoryTableName+"(Id,Name,ImageUrl,ProductsCount) VALUES(?,?,?,?)"
-        
-        connection.exec(create_category_table_query)
-        connection.run(register_category_query,[category.name,category.name,category.imageUrl,0])
+        const registerCategory = connection.prepare("INSERT INTO "+configuration.categoryTableName+"(Id,Name,ImageUrl,ProductsCount) VALUES(?,?,?,?)")
+        registerCategory.run(category.Id,category.Name,category.ImageUrl,0)
+
       
     }
 
-    export async function updateCategory(id :string ,attributes : any){
-        let update_product_query = "UPDATE ? SET "
-        let query_helper = [configuration.categoryTableName]
+    export async function updateCategory(options:UpdateOptions){
+        let update_category_query = "UPDATE "+ configuration.categoryTableName +" SET "
+        let query_helper = []
 
-        const attributesLength = attributes.length
+        const updatedValues = options.updatedValues
+        const attributesLength = updatedValues.length
 
         for(let i = 0  ;i < attributesLength ; i++){
             if(i != attributesLength - 1){
-                update_product_query +=  attributes[i].name +" = ? ,"
-                query_helper.push(attributes[i].value)
+                update_category_query +=  updatedValues[i].name +" = ? ,"
+                query_helper.push(updatedValues[i].value)
             }
             else{
-                update_product_query += attributes[i].name +" = ? WHERE Id = ? "
-                query_helper.push(attributes[i].value)
-                query_helper.push(id)
+                update_category_query += updatedValues[i].name +" = ? WHERE Id = ? "
+                query_helper.push(updatedValues[i].value)
+                query_helper.push(options.categoryId)
             }
         }
 
-        connection.run(update_product_query,query_helper)
+        const stmt = connection.prepare(update_category_query)
+        stmt.run(query_helper)
     }
 
-    export async function deleteCategory(id : string){
-        let drop_table_query = "DROP TABLE IF EXISTS ? "
-        let unregister_table_query = "DELETE FROM ? WHERE Id = ?"
-        connection.run(drop_table_query , [id])
-        connection.run(unregister_table_query , [configuration.categoryTableName , id])
+    export async function deleteCategory(options:DeleteOptions){
+        const dropTable = connection.prepare("DROP TABLE IF EXISTS " + options.categoryId)
+        const unregisterCategory = connection.prepare("DELETE FROM "+configuration.categoryTableName +" WHERE Id = ?")
+
+        dropTable.run()
+        unregisterCategory.run(options.categoryId)
     }
 
-    export async function fetchCategory(){
-        let select_category_quert = ""
-        connection.get
+    export async function fetchCategory(options:FetchOptions) : Promise<Category[]>{
+        const selectCategory = connection.prepare("SELECT * FROM "+configuration.categoryTableName + " LIMIT ? OFFSET ?;")
+        return selectCategory.all(options.count,options.startIndex)
     }
     
-    export async function createProduct(name :string, image:string , price:number , size :string, description :string,categoryId:string,productsCount:number){
-        let insert_product_query = "INSERT INTO ? (Id,Name,Description,ImageUrl,Size,Price) VALUES(?,?,?,?,?,?)"
-        let update_category_query = "UPDATE ? SET ProductsCount = ? WHERE Id = ?"
+    export async function createProduct(options:CreateProductOptions){
+        const insertProduct = connection.prepare("INSERT INTO ? (Id,Name,Description,ImageUrl,Size,Price) VALUES(?,?,?,?,?,?)")
+        const updateCategory = connection.prepare("UPDATE ? SET ProductsCount = ProductsCount+1 WHERE Id = ?")
 
-        connection.run(insert_product_query,[categoryId , name,name,description,image,size,price])
-        connection.run(update_category_query,[configuration.categoryTableName,productsCount+1,categoryId])
-
-    }
-
-    export async function deleteProduct(productId :string, categoryId:string){
-        let drop_product_query = " DELETE FROM ? WHERE Id = ? "
-        connection.run(drop_product_query , [categoryId , productId])
+        const product = options.product
+        insertProduct.run(options.categoryId ,product.Id,product.Name,product.Description,product.ImageUrl,product.Size,product.Price)
+        updateCategory.run(configuration.categoryTableName,options.categoryId)
 
     }
 
-    export async function updateProduct(productId :string, categoryId :string, attributes:any){
-        let update_product_query = "UPDATE ? SET "
-        let query_helper = [categoryId]
+    export async function fetchProduct(options:FetchOptions) : Promise<Product[]>{
+        const selectProduct = connection.prepare("SELECT * FROM "+options.categoryId + " LIMIT ? OFFSET ?;")
+        return selectProduct.all(options.count,options.startIndex)
+    }
 
-        const attributesLength = attributes.length
+    export async function deleteProduct(options:DeleteOptions){
+        const dropProduct = connection.prepare(" DELETE FROM ? WHERE Id = ? ")
+        dropProduct.run(options.categoryId , options.productId)
 
+    }
+
+    export async function updateProduct(options:UpdateOptions){
+        let update_product_query = "UPDATE "+ configuration.categoryTableName +" SET "
+        let query_helper = [options.categoryId]
+        const updatedValues = options.updatedValues
+        const attributesLength = options.updatedValues.length
+        
         for(let i = 0 ; i < attributesLength ; i++){
             if(i != attributesLength - 1){
-                update_product_query +=  attributes[i].name +" = ? ,"
-                query_helper.push(attributes[i].value)
+                update_product_query +=  updatedValues[i].name +" = ? ,"
+                query_helper.push(updatedValues[i].value)
             }
             else{
-                update_product_query += attributes[i].name +" = ? WHERE Id = ? "
-                query_helper.push(attributes[i].value)
-                query_helper.push(productId)
+                update_product_query += updatedValues[i].name +" = ? WHERE Id = ? "
+                query_helper.push(updatedValues[i].value)
+                query_helper.push(options.productId!)
             }
         }
-        connection.run(update_product_query,query_helper)
+
+        const stmt = connection.prepare(update_product_query)
+        stmt.run(query_helper)
     }
 
 

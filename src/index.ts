@@ -1,6 +1,6 @@
 
 import express from 'express';
-import { createCategory, createProduct, deleteCategory, deleteProduct, fetchCategory, setUpProductsDataabase, updateCategory, updateProduct } from './Database/ProductsDatabase';
+import { createCategory, createProduct, deleteCategory, deleteProduct, fetchCategory, fetchProduct, setUpProductsDataabase, updateCategory, updateProduct } from './Database/ProductsDatabase';
 import SocketManager from './Orders/SocketManager';
 import cors from 'cors'
 
@@ -19,14 +19,8 @@ const server = nodeApp.listen(PORT);
 SocketManager(server)
 setUpProductsDataabase()
 
-
-nodeApp.get("/", (req, res) => {
-  res.json({ message: "Hello from server!" });
-});
-
 nodeApp.post("/CreateCategory", (req, res) => {  
-  
-  createCategory(req.body.category)
+  createCategory(req.body.options)
   .then(()=>{
       res.json({msg:"Created Category"})
   })
@@ -38,36 +32,87 @@ nodeApp.post("/CreateCategory", (req, res) => {
 });
 
 nodeApp.get("/FetchCategory", (req, res) => {
-  fetchCategory(req.body.product)
- 
+  const fetchOptions = {startIndex:req.query.startIndex as string ,count:req.query.count as string}
+
+  fetchCategory(fetchOptions)
+  .then(result=>{
+    res.json(result)
+  })
+  .catch(error=>{
+    res.json({error : error})
+  })
+  
 });
 
 
 nodeApp.get("/DeleteCategory", (req, res) => {
-  deleteCategory()
+  const deleteOptions = {categoryId : req.query.categoryId as string}
+  deleteCategory(deleteOptions)
+  .then(()=>{
+    res.json({response:"Deleted Category"})
+  })
+  .catch((error)=>{
+    res.statusCode = 400
+    res.json({error:error.msg})
+  })
 });
 
 
 nodeApp.post("/UpdateCategory", (req, res) => {
-  updateCategory()
+  updateCategory(req.body.options)
+  .then(()=>{
+    res.json({response:"Updated Category"})
+  })
+  .catch((e:Error) =>{
+    console.log(e.stack)
+    res.statusCode = 400
+    res.json({error:e.message})
+  })
+  
 });
 
 
-nodeApp.get("/CreateProduct", (req, res) => {
-  createProduct()
+nodeApp.post("/CreateProduct", (req, res) => {
+  createProduct(req.body.options)
+  .then(()=>{
+    res.json({response:"Created Product"})
+  })
+  .catch(e=>{
+    res.json({error:e})
+  })
 });
 
 
 nodeApp.get("/FetchProduct", (req, res) => {
-  fetchProduct()
+  const fetchOptions = {startIndex:req.query.startIndex as string ,count:req.query.count as string}
+  fetchProduct(fetchOptions)
+  .then((result)=>{
+    res.json({response:result})
+  })
+  .catch(e=>{
+    res.json({error:e})
+  })
 });
 
 
 nodeApp.get("/DeleteProduct", (req, res) => {
-  deleteProduct()
+  const deleteOptions = {categoryId : req.query.categoryId as string , productId: req.query.productId as string}
+  deleteProduct(deleteOptions)
+  .then(()=>{
+    res.json({response:"Deleted Product"})
+  })
+  .catch(e=>{
+    res.json({error:e})
+  })
 });
 
 
-nodeApp.get("/UpdateProduct", (req, res) => {
-  updateProduct()
+nodeApp.post("/UpdateProduct", (req, res) => {
+  updateProduct(req.body.options)
+  .then(()=>{
+    res.json({response:"Updated Product"})
+  })
+  .catch(e=>{
+    res.json({error:e})
+  })
 });
