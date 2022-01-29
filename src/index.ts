@@ -78,18 +78,20 @@ nodeApp.post("/CreateProduct", (req, res) => {
     res.json({response:"Created Product"})
   })
   .catch(e=>{
+    console.log(e.stack)
     res.json({error:e})
   })
 });
 
 
 nodeApp.get("/FetchProduct", (req, res) => {
-  const fetchOptions = {startIndex:req.query.startIndex as string ,count:req.query.count as string}
+  const fetchOptions = {startIndex:req.query.startIndex as string ,count:req.query.count as string,categoryId:req.query.categoryId as string}
   fetchProduct(fetchOptions)
   .then((result)=>{
-    res.json({response:result})
+    res.json(result)
   })
   .catch(e=>{
+    res.statusCode = 400
     res.json({error:e})
   })
 });

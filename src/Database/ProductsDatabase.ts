@@ -76,6 +76,8 @@ type CreateCategoryOptions = {
         + "	Id String PRIMARY KEY,\n"
         + "	Name text NOT NULL,\n"
         + "	ImageUrl text NOT NULL\n,"
+        + "	Price text NOT NULL\n,"
+        + "	Size text NOT NULL\n,"
         + "	Description text DEFAULT '' NOT NULL\n"
         + ")")
         createCategoryTable.run()
@@ -123,12 +125,14 @@ type CreateCategoryOptions = {
     }
     
     export async function createProduct(options:CreateProductOptions){
-        const insertProduct = connection.prepare("INSERT INTO ? (Id,Name,Description,ImageUrl,Size,Price) VALUES(?,?,?,?,?,?)")
-        const updateCategory = connection.prepare("UPDATE ? SET ProductsCount = ProductsCount+1 WHERE Id = ?")
+        console.log(options)
+        const insertProduct = connection.prepare("INSERT INTO "+options.categoryId +" (Id,Name,Description,ImageUrl,Size,Price) VALUES(?,?,?,?,?,?)")
+        const updateCategory = connection.prepare("UPDATE "+configuration.categoryTableName+" SET ProductsCount = ProductsCount+1 WHERE Id = ?")
 
         const product = options.product
-        insertProduct.run(options.categoryId ,product.Id,product.Name,product.Description,product.ImageUrl,product.Size,product.Price)
-        updateCategory.run(configuration.categoryTableName,options.categoryId)
+        console.log(JSON.stringify(product.Size))
+        insertProduct.run(product.Id,product.Name,product.Description,product.ImageUrl,JSON.stringify(product.Size),JSON.stringify(product.Price))
+        updateCategory.run(options.categoryId)
 
     }
 
@@ -138,8 +142,11 @@ type CreateCategoryOptions = {
     }
 
     export async function deleteProduct(options:DeleteOptions){
-        const dropProduct = connection.prepare(" DELETE FROM ? WHERE Id = ? ")
-        dropProduct.run(options.categoryId , options.productId)
+        const dropProduct = connection.prepare(" DELETE FROM "+ options.categoryId +" WHERE Id = ? ")
+        const updateCategory = connection.prepare("UPDATE "+configuration.categoryTableName+" SET ProductsCount = ProductsCount-1 WHERE Id = ?")
+        dropProduct.run(options.productId)
+        updateCategory.run(options.categoryId)
+
 
     }
 
