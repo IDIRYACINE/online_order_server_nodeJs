@@ -1,6 +1,17 @@
 import Database from "better-sqlite3"
 
-
+type Customer = {
+    Id : string ,
+    FullName : string,
+    Email : string,
+    PhoneNumber : string,
+}
+type CustomerExtras = {
+    Id : string,
+    Latitude : number,
+    Longitude : number,
+    Address : string
+}
  
 let configurations = {
     databaseName : "customers.db",
@@ -14,45 +25,45 @@ let configurations = {
 let connection : Database.Database
 
 
-async function connect(){
+export async function setUpCustomerDatabase(){
     connection = new Database(configurations.databaseUrl + '/' +configurations.databaseName)
 
     const create_customers_table_query = "CREATE TABLE IF NOT EXISTS "+ configurations.mainTable +" (\n"
-    + "	Id String PRIMARY KEY,"
-    + "	FullName text NOT NULL,"
-    + "	Email text NOT NULL,"
-    + " PhoneNumber text NOT NULL,"
-    + " BanStatus bool DEFAULT true "
+    + "	Id string PRIMARY KEY,\n"
+    + "	FullName text NOT NULL,\n"
+    + "	Email text NOT NULL,\n"
+    + " PhoneNumber text NOT NULL,\n"
+    + " BanStatus bool DEFAULT true \n"
     + ")"
 
     const create_customers_extraInfos_table_query = "CREATE TABLE IF NOT EXISTS "+ configurations.secondaryTable +" ("
-    + "	Id String PRIMARY KEY,"
-    + " Rating real DEFAULT 0,"
-    + " NegativeRating real DEFAULT 0,"
-    + " Latitude real ,"
-    + " Longitude real ,"
-    + " Address text ,"
+    + "	Id string PRIMARY KEY,\n"
+    + " Rating real DEFAULT 0,\n"
+    + " NegativeRating real DEFAULT 0,\n"
+    + " Latitude real ,\n"
+    + " Longitude real ,\n"
+    + " Address text \n"
     + ")"
 
     connection.prepare(create_customers_table_query).run()
     connection.prepare(create_customers_extraInfos_table_query).run()
 }
 
-async function RegsiterCustomer(customer : any){
+export async function regsiterCustomer(customer : Customer){
     let register_customer_query = "INSERT INTO "+ configurations.mainTable
-        +InsertValuesQueryHelper(customer , customer.length)
-
+        +insertValuesQueryHelper(customer)
+        console.log(register_customer_query)
     connection.prepare(register_customer_query).run()
 }
 
-async function RegisterCustomerExtras(extras : any){
+export async function registerCustomerExtras(extras : CustomerExtras ){
     let register_customer_extras_query = "INSERT INTO "+ configurations.secondaryTable
-    + InsertValuesQueryHelper(extras,extras.length) 
+    + insertValuesQueryHelper(extras) 
 
     connection.prepare(register_customer_extras_query).run()
 }
 
-async function UpdateCustomer(customer : any){
+export async function updateCustomer(customer : any){
     let update_customer_query = "UPDATE "+ configurations.mainTable
         +UpdateValuesQueryHelper(customer , customer.length)
         
@@ -60,27 +71,32 @@ async function UpdateCustomer(customer : any){
     connection.prepare(update_customer_query).run()
 }
 
-async function UpdateCustomerExtras(extras : any){
+export async function updateCustomerExtras(extras : any){
     let update_customer_extras_query = "UPDATE "+ configurations.secondaryTable
     + UpdateValuesQueryHelper(extras,extras.length) 
 
     connection.prepare(update_customer_extras_query).run()
 }
 
-function InsertValuesQueryHelper (attributes : any,length : number){
+function insertValuesQueryHelper (attributes : any){
     let attributesHelper = " ("
     let valuesHelper = "Values("
 
-    for(let i = 0 ; i< length ; i++){
+    const length = Object.keys(attributes).length
+    let i = 0
+
+    Object.entries(attributes).forEach(([key,value]) => {
         if(i < length-1){
-            valuesHelper += attributes[i].value + ","
-            attributesHelper += attributes[i].name +","
+            valuesHelper += "'" + value +"'" + ","
+            attributesHelper += key +","
         }
         else{
-            valuesHelper += attributes[i].value  + ")"
-            attributesHelper += attributes[i].name + ") "
+            valuesHelper += "'" + value +"'"  + ")"
+            attributesHelper += key + ") "
         }
-    }
+        i++
+    });
+
     return attributesHelper + valuesHelper
 }
 
@@ -112,30 +128,39 @@ async function RateCustomer(customer : any){
     connection.prepare(update_customer_banStatus_query).run()
 }
 
-async function GetCustomerInfos(customerId : String){
-    let get_customer_infos = "SELECT "+ GetValuesHelper("infos")
-        +" FROM "+configurations.mainTable+"WHERE Id = "+ customerId
-
+export async function getCustomerInfos(customerId : string){
+    let get_customer_infos = `SELECT ${GetValuesHelper("infos")} FROM ${configurations.mainTable} WHERE Id = '${customerId}'`
     return await connection.prepare(get_customer_infos).get()
 
 }
 
-async function GetCustomerExtras(customerId : String){
+export async function getCustomerExtras(customerId : string){
     let get_customer_extras = "SELECT "+ GetValuesHelper("extras") 
-        +" FROM "+configurations.secondaryTable+"WHERE Id = "+ customerId
+        +" FROM "+configurations.secondaryTable+" WHERE Id = "+ customerId
     return connection.prepare(get_customer_extras).get()
 
 }
 
-function GetValuesHelper(type : String ){
-    let result = "("
+export async function getCustomerData(customerId : string){
+    const infos = getCustomerInfos(customerId)
+    const extras = getCustomerExtras(customerId)
+    return {
+        infos : infos,
+        extras : extras
+    }
+}
+
+function GetValuesHelper(type : string ){
+    let result = ""
     const helper = (attributes : Array<string>)=>{
-        for (let i = 0 ; i < attributes.length ; i++){
+        const length = attributes.length
+
+        for (let i = 0 ; i < length ; i++){
             if(i < length-1){
-                result += attributes[i]
+                result += attributes[i] + ","
             }
             else{
-                result += attributes[i] + ")"
+                result += attributes[i] 
             }
         }
     }

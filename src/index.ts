@@ -1,8 +1,10 @@
 
 import express from 'express';
-import { createCategory, createProduct, deleteCategory, deleteProduct, fetchCategory, fetchProduct, setUpProductsDataabase, updateCategory, updateProduct } from './Database/ProductsDatabase';
-import SocketManager from './Orders/SocketManager';
+import { createCategory, createProduct, deleteCategory, deleteProduct, fetchCategory, fetchProduct, updateCategory, updateProduct } from './Database/ProductsDatabase';
 import cors from 'cors'
+import { getCustomerData, registerCustomerExtras, regsiterCustomer } from './Database/CustomersDatabase';
+import App from './App';
+import { test } from './Orders/OrdersService';
 
 const PORT = process.env.PORT || 3001;
 const nodeApp = express();
@@ -16,8 +18,7 @@ nodeApp.use(cors({
 nodeApp.use(express.json())
 
 const server = nodeApp.listen(PORT);
-SocketManager(server)
-setUpProductsDataabase()
+App(false,server)
 
 nodeApp.post("/CreateCategory", (req, res) => {  
   createCategory(req.body.options)
@@ -104,6 +105,7 @@ nodeApp.get("/DeleteProduct", (req, res) => {
     res.json({response:"Deleted Product"})
   })
   .catch(e=>{
+    res.statusCode = 400
     res.json({error:e})
   })
 });
@@ -118,3 +120,46 @@ nodeApp.post("/UpdateProduct", (req, res) => {
     res.json({error:e})
   })
 });
+
+nodeApp.post("/RegisterCustomer",(req,res)=>{
+  regsiterCustomer(req.body.infos)
+  .then(()=>{
+    res.send("Registered")
+  })
+  .catch(e=>{
+    console.log(e)
+    res.statusCode = 400
+    res.send(e)
+  })
+  
+})
+
+nodeApp.post("/RegisterCustomerExtras" , (req,res)=>{
+  registerCustomerExtras(req.body.extras)
+  .then(()=>{
+    res.send("Registered")
+  })
+  .catch(e=>{
+    res.statusCode = 400
+    res.send(e)
+  })
+})
+
+nodeApp.get("/GetCustomerExtras",(req,res)=>{
+  getCustomerData(req.query.id as string)
+  .then(()=>{
+    res.send("got customer")
+  })
+  .catch(e=>{
+    res.statusCode = 400
+    res.json(e)
+  })
+})
+
+nodeApp.get("/test",(req,res)=>{
+  test().then(
+    ()=>{
+      res.send("tested")
+    }
+  )
+})
