@@ -19,7 +19,7 @@ let configurations = {
     mainTable : "Customers",
     mainTableAttrbs : ["FullName","Email","PhoneNumber","BanStatus"],
     secondaryTable : "Extras",
-    secondaryTableAttrbs : ["Rating","NegativeRating","Latitude","Longitude","Addresse"]
+    secondaryTableAttrbs : ["Rating","NegativeRating","Latitude","Longitude","Address"]
 }
 
 let connection : Database.Database
@@ -135,8 +135,7 @@ export async function getCustomerInfos(customerId : string){
 }
 
 export async function getCustomerExtras(customerId : string){
-    let get_customer_extras = "SELECT "+ GetValuesHelper("extras") 
-        +" FROM "+configurations.secondaryTable+" WHERE Id = "+ customerId
+    let get_customer_extras = `SELECT ${GetValuesHelper("extras")} FROM ${configurations.secondaryTable} WHERE Id ='${customerId}'`
     return connection.prepare(get_customer_extras).get()
 
 }

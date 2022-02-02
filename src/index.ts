@@ -2,9 +2,9 @@
 import express from 'express';
 import { createCategory, createProduct, deleteCategory, deleteProduct, fetchCategory, fetchProduct, updateCategory, updateProduct } from './Database/ProductsDatabase';
 import cors from 'cors'
-import { getCustomerData, registerCustomerExtras, regsiterCustomer } from './Database/CustomersDatabase';
+import {registerCustomerExtras, regsiterCustomer } from './Database/CustomersDatabase';
 import App from './App';
-import { test } from './Orders/OrdersService';
+import { decodeOrder, test } from './Orders/OrdersService';
 
 const PORT = process.env.PORT || 3001;
 const nodeApp = express();
@@ -146,9 +146,9 @@ nodeApp.post("/RegisterCustomerExtras" , (req,res)=>{
 })
 
 nodeApp.get("/GetCustomerExtras",(req,res)=>{
-  getCustomerData(req.query.id as string)
-  .then(()=>{
-    res.send("got customer")
+  decodeOrder(req.query.id as string)
+  .then((extras)=>{
+    res.json(extras)
   })
   .catch(e=>{
     res.statusCode = 400
@@ -158,8 +158,8 @@ nodeApp.get("/GetCustomerExtras",(req,res)=>{
 
 nodeApp.get("/test",(req,res)=>{
   test().then(
-    ()=>{
-      res.send("tested")
+    (response)=>{
+      res.json(response)
     }
   )
 })

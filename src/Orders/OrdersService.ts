@@ -1,6 +1,6 @@
 
 import { Database } from 'firebase-admin/lib/database/database';
-import { getCustomerInfos } from '../Database/CustomersDatabase';
+import { getCustomerExtras, getCustomerInfos } from '../Database/CustomersDatabase';
 import {broadCastMessage} from './SocketManager';
 import OrderStatus from './Types';
 
@@ -52,19 +52,39 @@ export async function setUpFirebaseDatabase(database :Database) {
 export let Orders : any  = []
 
 export async function test(){
-    getCustomerInfos("f21")
-    .then(infos=>{
-        broadCastMessage("newOrder",{
-            id : "f21",
-            customerName : infos.FullName,
-            phoneNumber : infos.PhoneNumber,
-            email : infos.Email,
-            banStatus : infos.BanStatus,
-            items : []
-        })
+    return Promise.resolve(
+        getCustomerExtras('f21')
+        .then((customerExtras)=>{
+        return {
+            address: customerExtras.Address,
+            rating : customerExtras.Rating,
+            negativeRating : customerExtras.NegativeRating,
+            coordinates : {
+                lat : customerExtras.Latitude,
+                lng : customerExtras.Longitude
+            }
+        }
     })
+    )
+    
     
 }
 
+export async function decodeOrder(customerId:string ){
+    return Promise.resolve(
+        getCustomerExtras(customerId)
+        .then((customerExtras)=>{
+            return {
+                address: customerExtras.Address,
+                rating : customerExtras.Rating,
+                negativeRating : customerExtras.NegativeRating,
+                coordinates : {
+                    lat : customerExtras.Latitude,
+                    lng : customerExtras.Longitude
+                }
+            }
+        }
+    ))
+}
 
 
