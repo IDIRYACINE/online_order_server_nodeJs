@@ -1,4 +1,5 @@
 import Database from "better-sqlite3"
+import { CustomersDatabaseConfig as configurations} from "../Config"
 
 type Customer = {
     Id : string ,
@@ -13,17 +14,7 @@ type CustomerExtras = {
     Address : string
 }
  
-let configurations = {
-    databaseName : "customers.db",
-    databaseUrl : "./data",
-    mainTable : "Customers",
-    mainTableAttrbs : ["FullName","Email","PhoneNumber","BanStatus"],
-    secondaryTable : "Extras",
-    secondaryTableAttrbs : ["Rating","NegativeRating","Latitude","Longitude","Address"]
-}
-
 let connection : Database.Database
-
 
 export async function setUpCustomerDatabase(){
     connection = new Database(configurations.databaseUrl + '/' +configurations.databaseName)
@@ -52,7 +43,6 @@ export async function setUpCustomerDatabase(){
 export async function regsiterCustomer(customer : Customer){
     let register_customer_query = "INSERT INTO "+ configurations.mainTable
         +insertValuesQueryHelper(customer)
-        console.log(register_customer_query)
     connection.prepare(register_customer_query).run()
 }
 

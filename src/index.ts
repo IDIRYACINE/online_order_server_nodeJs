@@ -5,6 +5,7 @@ import cors from 'cors'
 import {registerCustomerExtras, regsiterCustomer } from './Database/CustomersDatabase';
 import App from './App';
 import { decodeOrder, test } from './Orders/OrdersService';
+import { SynchroniseDatabase } from './Storage/StorageService';
 
 const PORT = process.env.PORT || 3001;
 const nodeApp = express();
@@ -18,7 +19,7 @@ nodeApp.use(cors({
 nodeApp.use(express.json())
 
 const server = nodeApp.listen(PORT);
-App(false,server)
+App(true,server)
 
 nodeApp.post("/CreateCategory", (req, res) => {  
   createCategory(req.body.options)
@@ -33,6 +34,7 @@ nodeApp.post("/CreateCategory", (req, res) => {
 });
 
 nodeApp.get("/FetchCategory", (req, res) => {
+  
   const fetchOptions = {startIndex:req.query.startIndex as string ,count:req.query.count as string}
 
   fetchCategory(fetchOptions)
@@ -122,9 +124,13 @@ nodeApp.post("/UpdateProduct", (req, res) => {
 });
 
 nodeApp.post("/RegisterCustomer",(req,res)=>{
+  
+  console.log(req.body)
   regsiterCustomer(req.body.infos)
   .then(()=>{
-    res.send("Registered")
+    registerCustomerExtras(req.body.extras).then(()=>{
+      res.send("Registered")
+    })
   })
   .catch(e=>{
     console.log(e)
@@ -156,7 +162,18 @@ nodeApp.get("/GetCustomerExtras",(req,res)=>{
   })
 })
 
+
+nodeApp.get("/SynchroniseDatabase",(req,res)=>{
+  SynchroniseDatabase().then((value)=>{
+    res.send("Database Synchronised")
+  }).catch(e=>{
+    res.statusCode = 400
+    res.send("Synchronisation Failed")
+  });
+})
+
 nodeApp.get("/test",(req,res)=>{
+  console.log("test");
   test().then(
     (response)=>{
       res.json(response)

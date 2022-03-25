@@ -1,5 +1,6 @@
 
 import Database from 'better-sqlite3';
+import { ProductsDatabaseConfig as configuration} from "../Config"
 
 type Category = {
     Id : string,
@@ -47,14 +48,7 @@ type CreateProductOptions = {
 type CreateCategoryOptions = {
     category:Category
 }
-
     let connection : Database.Database 
-
-    const configuration = {
-        databaseName : "products.db",
-        databaseUrl : "./data",
-        categoryTableName : "Categories",
-    }
 
     export async function setUpProductsDatabase(){
         connection = new Database(configuration.databaseUrl + '/' +configuration.databaseName)
