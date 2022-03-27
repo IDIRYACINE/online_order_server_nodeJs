@@ -5,7 +5,7 @@ let firebaseAuth : Auth;
 
 
 export function loginWithUsernameAndPassword(username:string , password : string) : boolean{
-    return false
+    return true
 }
 
 export function setUpFirebaseAuth(auth : Auth){

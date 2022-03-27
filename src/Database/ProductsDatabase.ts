@@ -67,7 +67,7 @@ type CreateCategoryOptions = {
         const category = options.category 
 
         const createCategoryTable = connection.prepare("CREATE TABLE IF NOT EXISTS "+ category.Name +" (\n"
-        + "	Id String PRIMARY KEY,\n"
+        + "	Id Integer PRIMARY KEY AUTOINCREMENT,\n"
         + "	Name text NOT NULL,\n"
         + "	ImageUrl text NOT NULL\n,"
         + "	Price text NOT NULL\n,"
@@ -77,7 +77,7 @@ type CreateCategoryOptions = {
         createCategoryTable.run()
 
         const registerCategory = connection.prepare("INSERT INTO "+configuration.categoryTableName+"(Id,Name,ImageUrl,ProductsCount) VALUES(?,?,?,?)")
-        registerCategory.run(category.Id,category.Name,category.ImageUrl,0)
+        registerCategory.run(category.Name,category.Name,category.ImageUrl,0)
 
       
     }
@@ -119,10 +119,10 @@ type CreateCategoryOptions = {
     }
     
     export async function createProduct(options:CreateProductOptions){
-        const insertProduct = connection.prepare("INSERT INTO "+options.categoryId +" (Id,Name,Description,ImageUrl,Size,Price) VALUES(?,?,?,?,?,?)")
+        const insertProduct = connection.prepare("INSERT INTO "+options.categoryId +" (Name,Description,ImageUrl,Size,Price) VALUES(?,?,?,?,?)")
         const updateCategory = connection.prepare("UPDATE "+configuration.categoryTableName+" SET ProductsCount = ProductsCount+1 WHERE Id = ?")
         const product = options.product
-        insertProduct.run(product.Id,product.Name,product.Description,product.ImageUrl,JSON.stringify(product.Size),JSON.stringify(product.Price))
+        insertProduct.run(product.Name,product.Description,product.ImageUrl,JSON.stringify(product.Size),JSON.stringify(product.Price))
         updateCategory.run(options.categoryId)
 
     }

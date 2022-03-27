@@ -21,7 +21,7 @@ function App(isTestMode:boolean , server:http.Server){
         
         SocketManger(server)
         setUpFirebaseDatabase(admin.database());
-        StorageService(admin.storage())
+        StorageService(admin.storage(),admin.database())
         setUpFirebaseAuth(admin.auth())
         setUpProductsDatabase()
         setUpCustomerDatabase()
