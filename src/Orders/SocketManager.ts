@@ -1,7 +1,7 @@
 import http from 'http'
 import {Server} from "socket.io"
 import {Handshake } from 'socket.io/dist/socket'
-import {Orders} from './OrdersService'
+import { onFirstConnectionOrders } from './OrdersService'
 
 let io : Server
 
@@ -28,8 +28,13 @@ export default function createSocket(server : http.Server){
     })
 
     io.on("connection" , (socket : any) => {
-        broadCastMessage('onConnectOrders' , Orders)
-    })
+        onFirstConnectionOrders((Orders:any)=>{
+            console.log(Orders)
+            broadCastMessage('onConnectOrders',Orders)
+        })
+        
+        }
+    )
 
 }
 

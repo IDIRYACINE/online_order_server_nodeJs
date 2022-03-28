@@ -29,19 +29,44 @@ async function listenToOrdersOnFirebase(){
         })
         }
     })
+}
 
 
 
- /*   ordersRef.get().then(snapshot =>{
-        const ordersSnapshot = snapshot.val()
-        if(ordersSnapshot !== null){
-            ordersSnapshot.forEach((value: any,key: any) =>{
-                Orders.push(value)
+export async function onFirstConnectionOrders(callback:(orders:any)=>void) {
+    const ordersRef =  firebaseRealTime.ref("Orders")
+    let Orders : any  = []
+    
+    let id :any;
+    let result : any = {}
+    let childrenCount : number
+    let currentCount = 1
+
+    ordersRef.once("value",(snapshot) =>{
+        if(snapshot.exists()){
+            childrenCount = snapshot.numChildren()
+            snapshot.forEach((childSnapshot) => {
+                id = childSnapshot.key
+                getCustomerInfos(id).then(infos => {
+                    result['id'] = id
+                    result = {...result, ...infos }
+                    getCustomerExtras(id).then(extras => {
+                        result = {...result, ...extras }
+                        result = {...result, ...childSnapshot.val() }
+                        Orders.push(result)
+                        currentCount++
+                        result = {}
+                        if(currentCount > childrenCount){
+                            callback(Orders)
+                        }
+                    })
+                })
             })
         }
     })
-   */
+                
 }
+
 
 export function updateOrderStatus(status : OrderStatus){
     const statusRef = firebaseRealTime.ref("OrdersStatus")
@@ -54,26 +79,7 @@ export async function setUpFirebaseDatabase(database :Database) {
     listenToOrdersOnFirebase()
 }
 
-export let Orders : any  = []
 
-export async function test(){
-    return Promise.resolve(
-        getCustomerExtras('f21')
-        .then((customerExtras)=>{
-        return {
-            address: customerExtras.Address,
-            rating : customerExtras.Rating,
-            negativeRating : customerExtras.NegativeRating,
-            coordinates : {
-                lat : customerExtras.Latitude,
-                lng : customerExtras.Longitude
-            }
-        }
-    })
-    )
-    
-    
-}
 
 export async function decodeOrder(customerId:string ){
     return Promise.resolve(
