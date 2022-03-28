@@ -114,11 +114,12 @@ nodeApp.get("/DeleteProduct", (req, res) => {
 
 
 nodeApp.post("/UpdateProduct", (req, res) => {
-  updateProduct(req.body.options)
+  updateProduct(JSON.parse(req.body.options))
   .then(()=>{
     res.json({response:"Updated Product"})
   })
   .catch(e=>{
+    console.log(e.stack)
     res.json({error:e})
   })
 });

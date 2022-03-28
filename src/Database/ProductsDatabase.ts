@@ -142,23 +142,34 @@ type CreateCategoryOptions = {
     }
 
     export async function updateProduct(options:UpdateOptions){
-        let update_product_query = "UPDATE "+ configuration.categoryTableName +" SET "
-        let query_helper = [options.categoryId]
+        let update_product_query = `UPDATE ${options.categoryId} SET `
+        let query_helper = []
         const updatedValues = options.updatedValues
         const attributesLength = options.updatedValues.length
-        
-        for(let i = 0 ; i < attributesLength ; i++){
-            if(i != attributesLength - 1){
-                update_product_query +=  updatedValues[i].name +" = ? ,"
-                query_helper.push(updatedValues[i].value)
+
+        let name : string 
+
+        function appendAttribValueToQuery(name:string,value:any) {
+            if( (name === "Size") || (name === "Price")){
+                query_helper.push(JSON.stringify(value))
             }
             else{
-                update_product_query += updatedValues[i].name +" = ? WHERE Id = ? "
-                query_helper.push(updatedValues[i].value)
-                query_helper.push(options.productId!)
+                query_helper.push(value)
             }
         }
 
+        for(let i = 0 ; i < attributesLength ; i++){
+            name = updatedValues[i].name
+            if(i != attributesLength - 1){
+                update_product_query +=  name +" = ? ,"
+               appendAttribValueToQuery(name,updatedValues[i].value)
+            }
+            else{
+                update_product_query += name +" = ? WHERE Id = ? "
+                appendAttribValueToQuery(name,updatedValues[i].value)
+                query_helper.push(options.productId!)
+            }
+        }
         const stmt = connection.prepare(update_product_query)
         stmt.run(query_helper)
     }
