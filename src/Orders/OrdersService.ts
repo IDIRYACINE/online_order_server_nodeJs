@@ -10,19 +10,24 @@ let firebaseRealTime : Database
 async function listenToOrdersOnFirebase(){
     const ordersRef =  firebaseRealTime.ref("Orders")
     ordersRef.on("child_added" ,(snapshot) => {
-        const orderSnapshot = snapshot.val()
-
-        getCustomerInfos(orderSnapshot.id)
+        if(snapshot.key !== null){
+            const orderSnapshot = snapshot.val()
+        
+        getCustomerInfos(snapshot.key)
         .then(infos=>{
-            broadCastMessage("newOrder",{
-                id : orderSnapshot.id,
-                customerName : infos.FullName,
-                phoneNumber : infos.PhoneNumber,
-                email : infos.Email,
-                banStatus : infos.BanStatus,
-                items : orderSnapshot.items
-            })
+            if(infos !== undefined){
+                broadCastMessage("newOrder",{
+                    id :snapshot.key,
+                    customerName : infos.FullName,
+                    phoneNumber : infos.PhoneNumber,
+                    email : infos.Email,
+                    banStatus : infos.BanStatus,
+                    items : orderSnapshot.items
+                })
+            }
+            
         })
+        }
     })
 
 
