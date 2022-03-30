@@ -4,7 +4,7 @@ import { createCategory, createProduct, deleteCategory, deleteProduct, fetchCate
 import cors from 'cors'
 import {registerCustomerExtras, regsiterCustomer } from './Database/CustomersDatabase';
 import App from './App';
-import { decodeOrder, test } from './Orders/OrdersService';
+import { decodeOrder } from './Orders/OrdersService';
 import { SynchroniseDatabase } from './Storage/StorageService';
 
 const PORT = process.env.PORT || 3001;
@@ -171,13 +171,4 @@ nodeApp.get("/SynchroniseDatabase",(req,res)=>{
     res.statusCode = 400
     res.send("Synchronisation Failed")
   });
-})
-
-nodeApp.get("/test",(req,res)=>{
-  console.log("test");
-  test().then(
-    (response)=>{
-      res.json(response)
-    }
-  )
 })

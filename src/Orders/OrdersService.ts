@@ -89,10 +89,9 @@ export async function decodeOrder(customerId:string ){
                 address: customerExtras.Address,
                 rating : customerExtras.Rating,
                 negativeRating : customerExtras.NegativeRating,
-                coordinates : {
-                    lat : customerExtras.Latitude,
-                    lng : customerExtras.Longitude
-                }
+                latitude : customerExtras.Latitude,
+                longitude : customerExtras.Longitude
+                
             }
         }
     ))
