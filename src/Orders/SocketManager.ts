@@ -29,7 +29,6 @@ export default function createSocket(server : http.Server){
 
     io.on("connection" , (socket : any) => {
         onFirstConnectionOrders((Orders:any)=>{
-            console.log(Orders)
             broadCastMessage('onConnectOrders',Orders)
         })
         

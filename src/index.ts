@@ -67,7 +67,6 @@ nodeApp.post("/UpdateCategory", (req, res) => {
     res.json({response:"Updated Category"})
   })
   .catch((e:Error) =>{
-    console.log(e.stack)
     res.statusCode = 400
     res.json({error:e.message})
   })
@@ -81,7 +80,6 @@ nodeApp.post("/CreateProduct", (req, res) => {
     res.json({response:"Created Product"})
   })
   .catch(e=>{
-    console.log(e.stack)
     res.json({error:e})
   })
 });
@@ -119,14 +117,11 @@ nodeApp.post("/UpdateProduct", (req, res) => {
     res.json({response:"Updated Product"})
   })
   .catch(e=>{
-    console.log(e.stack)
     res.json({error:e})
   })
 });
 
 nodeApp.post("/RegisterCustomer",(req,res)=>{
-  
-  console.log(req.body)
   regsiterCustomer(req.body.infos)
   .then(()=>{
     registerCustomerExtras(req.body.extras).then(()=>{
@@ -134,7 +129,6 @@ nodeApp.post("/RegisterCustomer",(req,res)=>{
     })
   })
   .catch(e=>{
-    console.log(e)
     res.statusCode = 400
     res.send(e)
   })

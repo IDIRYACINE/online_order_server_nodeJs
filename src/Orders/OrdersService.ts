@@ -35,7 +35,7 @@ async function listenToOrdersOnFirebase(){
 
 export async function onFirstConnectionOrders(callback:(orders:any)=>void) {
     const ordersRef =  firebaseRealTime.ref("Orders")
-    let Orders : any  = []
+    let Orders : any  = {}
     
     let id :any;
     let result : any = {}
@@ -53,7 +53,7 @@ export async function onFirstConnectionOrders(callback:(orders:any)=>void) {
                     getCustomerExtras(id).then(extras => {
                         result = {...result, ...extras }
                         result = {...result, ...childSnapshot.val() }
-                        Orders.push(result)
+                        Orders[id] = result
                         currentCount++
                         result = {}
                         if(currentCount > childrenCount){
