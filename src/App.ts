@@ -6,12 +6,15 @@ import { setUpProductsDatabase } from './Database/ProductsDatabase';
 import {setUpFirebaseDatabase} from './Orders/OrdersService';
 import SocketManger from './Orders/SocketManager';
 import StorageService from './Storage/StorageService';
+import {Emulator} from './Config'
 
 function App(isTestMode:boolean , server:http.Server){   
-        
-        //doesn't work need to figure it out
+
         if (isTestMode){
-                process.env['FIRESTORE_EMULATOR_HOST'] = 'localhost:4400';
+                process.env[Emulator.authEnvKey] = Emulator.auth
+                process.env[Emulator.databaseEnvKey] = Emulator.database
+                process.env[Emulator.storageEnvKey] = Emulator.storage
+                process.env[Emulator.firestoreEnvKey] = Emulator.firestore
         }
 
         admin.initializeApp({credential : admin.credential.cert('./servicesAccount.json'),
