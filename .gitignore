@@ -1,6 +1,6 @@
 /node_modules
 .firebase
-.build
+/build
 data
 npm-debug.log
 .DS_Store
