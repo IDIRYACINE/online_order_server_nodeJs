@@ -167,9 +167,9 @@ nodeApp.get("/SynchroniseDatabase",(req,res)=>{
   });
 })
 
-nodeApp.get("/Test"),(req,res)=>{
+nodeApp.get("/Test",(req,res)=>{
   res.send("test")
-}
+})
 
 
     
