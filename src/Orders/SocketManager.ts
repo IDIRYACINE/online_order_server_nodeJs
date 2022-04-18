@@ -12,7 +12,10 @@ function AuthoriseConnection(handshake : Handshake){
 export default function createSocket(server : http.Server){
     io = new Server(server , {
         cors : {
-            origin :['https://idiryacine.github.io/online_order_server_app/'],
+            origin :['https://idiryacine.github.io/online_order_server_app/',
+            'https://idiryacine.github.io',
+            'https://github.com'
+        ],
             allowedHeaders: ["my-custom-header"],
             
         }
