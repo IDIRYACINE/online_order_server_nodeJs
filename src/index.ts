@@ -7,7 +7,6 @@ import App from './App';
 import { decodeOrder } from './Orders/OrdersService';
 import { SynchroniseDatabase } from './Storage/StorageService';
 
-const PORT = process.env.PORT || 3001;
 const nodeApp = express();
 
 nodeApp.use(cors({
@@ -18,7 +17,7 @@ nodeApp.use(cors({
 
 nodeApp.use(express.json())
 
-const server = nodeApp.listen(PORT);
+const server = nodeApp.listen(process.env.PORT || 3001);
 App(false,server)
 
 nodeApp.post("/CreateCategory", (req, res) => {  
@@ -168,7 +167,7 @@ nodeApp.get("/SynchroniseDatabase",(req,res)=>{
 })
 
 nodeApp.get("/Test",(req,res)=>{
-  res.send("test")
+  res.send("Port : " + process.env.PORT)
 })
 
 
