@@ -19,7 +19,7 @@ nodeApp.use(cors({
 nodeApp.use(express.json())
 
 const server = nodeApp.listen(PORT);
-App(true,server)
+App(false,server)
 
 nodeApp.post("/CreateCategory", (req, res) => {  
   createCategory(req.body.options)
@@ -166,6 +166,10 @@ nodeApp.get("/SynchroniseDatabase",(req,res)=>{
     res.send("Synchronisation Failed")
   });
 })
+
+nodeApp.get("/Test"),(req,res)=>{
+  res.send("test")
+}
 
 
     
