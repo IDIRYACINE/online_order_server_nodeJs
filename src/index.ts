@@ -2,7 +2,7 @@
 import express from 'express';
 import { createCategory, createProduct, deleteCategory, deleteProduct, fetchCategory, fetchProduct, updateCategory, updateProduct } from './Database/ProductsDatabase';
 import cors from 'cors'
-import {registerCustomerExtras, regsiterCustomer } from './Database/CustomersDatabase';
+import {getCustomerInfos, registerCustomerExtras, regsiterCustomer } from './Database/CustomersDatabase';
 import App from './App';
 import { decodeOrder } from './Orders/OrdersService';
 import { SynchroniseDatabase } from './Storage/StorageService';
@@ -166,8 +166,13 @@ nodeApp.get("/SynchroniseDatabase",(req,res)=>{
   });
 })
 
-nodeApp.get("/Test",(req,res)=>{
-  res.send("Port : " + process.env.PORT)
+nodeApp.get("/FetchCustomerInfos",(req,res)=>{
+  const customerId =req.query.customerId as string 
+
+  getCustomerInfos(customerId).then(infos => {
+    res.json(infos)
+  })
+  
 })
 
 
