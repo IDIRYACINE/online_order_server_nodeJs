@@ -170,11 +170,10 @@ nodeApp.get("/FetchCustomerInfos",(req,res)=>{
   const customerId =req.query.customerId as string 
 
   getCustomerInfos(customerId).then(infos => {
-    res.json(infos)
+    res.json({response:infos})
   })
   
 })
-
 
     
  
