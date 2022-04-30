@@ -2,10 +2,10 @@
 import express from 'express';
 import { createCategory, createProduct, deleteCategory, deleteProduct, fetchCategory, fetchProduct, updateCategory, updateProduct } from './Database/ProductsDatabase';
 import cors from 'cors'
-import {getCustomerInfos, registerCustomerExtras, regsiterCustomer } from './Database/CustomersDatabase';
 import App from './App';
-import { decodeOrder } from './Orders/OrdersService';
 import { SynchroniseDatabase } from './Storage/StorageService';
+import { Api } from './Config';
+import { BanCustomer, getPhoneNumber, RateCustomer, registerPhoneNumber } from './Database/CustomersDatabase';
 
 const nodeApp = express();
 
@@ -18,9 +18,9 @@ nodeApp.use(cors({
 nodeApp.use(express.json())
 
 const server = nodeApp.listen(process.env.PORT || 3001);
-App(false,server)
+App(true,server)
 
-nodeApp.post("/CreateCategory", (req, res) => {  
+nodeApp.post(Api.createCategory, (req, res) => {  
   createCategory(req.body.options)
   .then(()=>{
       res.json({msg:"Created Category"})
@@ -32,7 +32,7 @@ nodeApp.post("/CreateCategory", (req, res) => {
 
 });
 
-nodeApp.get("/FetchCategory", (req, res) => {
+nodeApp.get(Api.fetchCategory, (req, res) => {
   
   const fetchOptions = {startIndex:req.query.startIndex as string ,count:req.query.count as string}
 
@@ -47,7 +47,7 @@ nodeApp.get("/FetchCategory", (req, res) => {
 });
 
 
-nodeApp.get("/DeleteCategory", (req, res) => {
+nodeApp.get(Api.deleteCategory, (req, res) => {
   const deleteOptions = {categoryId : req.query.categoryId as string}
   deleteCategory(deleteOptions)
   .then(()=>{
@@ -60,7 +60,7 @@ nodeApp.get("/DeleteCategory", (req, res) => {
 });
 
 
-nodeApp.post("/UpdateCategory", (req, res) => {
+nodeApp.post(Api.updateCategory, (req, res) => {
   updateCategory(req.body.options)
   .then(()=>{
     res.json({response:"Updated Category"})
@@ -73,7 +73,7 @@ nodeApp.post("/UpdateCategory", (req, res) => {
 });
 
 
-nodeApp.post("/CreateProduct", (req, res) => {
+nodeApp.post(Api.createProduct, (req, res) => {
   createProduct(req.body.options)
   .then(()=>{
     res.json({response:"Created Product"})
@@ -84,7 +84,7 @@ nodeApp.post("/CreateProduct", (req, res) => {
 });
 
 
-nodeApp.get("/FetchProduct", (req, res) => {
+nodeApp.get(Api.fetchProduct, (req, res) => {
   const fetchOptions = {startIndex:req.query.startIndex as string ,count:req.query.count as string,categoryId:req.query.categoryId as string}
   fetchProduct(fetchOptions)
   .then((result)=>{
@@ -97,7 +97,7 @@ nodeApp.get("/FetchProduct", (req, res) => {
 });
 
 
-nodeApp.get("/DeleteProduct", (req, res) => {
+nodeApp.get(Api.deleteProduct, (req, res) => {
   const deleteOptions = {categoryId : req.query.categoryId as string , productId: req.query.productId as string}
   deleteProduct(deleteOptions)
   .then(()=>{
@@ -110,7 +110,7 @@ nodeApp.get("/DeleteProduct", (req, res) => {
 });
 
 
-nodeApp.post("/UpdateProduct", (req, res) => {
+nodeApp.post(Api.updateProduct, (req, res) => {
   updateProduct(JSON.parse(req.body.options))
   .then(()=>{
     res.json({response:"Updated Product"})
@@ -120,44 +120,8 @@ nodeApp.post("/UpdateProduct", (req, res) => {
   })
 });
 
-nodeApp.post("/RegisterCustomer",(req,res)=>{
-  regsiterCustomer(req.body.infos)
-  .then(()=>{
-    registerCustomerExtras(req.body.extras).then(()=>{
-      res.send("Registered")
-    })
-  })
-  .catch(e=>{
-    res.statusCode = 400
-    res.send(e)
-  })
-  
-})
 
-nodeApp.post("/RegisterCustomerExtras" , (req,res)=>{
-  registerCustomerExtras(req.body.extras)
-  .then(()=>{
-    res.send("Registered")
-  })
-  .catch(e=>{
-    res.statusCode = 400
-    res.send(e)
-  })
-})
-
-nodeApp.get("/GetCustomerExtras",(req,res)=>{
-  decodeOrder(req.query.id as string)
-  .then((extras)=>{
-    res.json(extras)
-  })
-  .catch(e=>{
-    res.statusCode = 400
-    res.json(e)
-  })
-})
-
-
-nodeApp.get("/SynchroniseDatabase",(req,res)=>{
+nodeApp.get(Api.synchroniseDatabase,(req,res)=>{
   SynchroniseDatabase().then((value)=>{
     res.send("Database Synchronised")
   }).catch(e=>{
@@ -166,14 +130,52 @@ nodeApp.get("/SynchroniseDatabase",(req,res)=>{
   });
 })
 
-nodeApp.get("/FetchCustomerInfos",(req,res)=>{
-  const customerId =req.query.customerId as string 
 
-  getCustomerInfos(customerId).then(infos => {
-    res.json({response:infos})
+nodeApp.post(Api.rateCustomer, (req, res) => {
+  RateCustomer(JSON.parse(req.body.options))
+  .then(()=>{
+    res.json({response:"Rated Customer"})
   })
-  
+  .catch(e=>{
+    res.json({error:e})
+  })
+});
+
+
+nodeApp.post(Api.banCustomer, (req, res) => {
+  BanCustomer(JSON.parse(req.body.options))
+  .then(()=>{
+    res.json({response:"Banned Customer"})
+  })
+  .catch(e=>{
+    res.json({error:e})
+  })
+});
+
+
+
+nodeApp.post(Api.updateCustomerPhone, (req, res) => {
+  const options = req.body
+  registerPhoneNumber(options.Id , options.PhoneNumber)
+  .then(()=>{
+    res.send("Updated")
+  })
+  .catch(e=>{
+    res.json({error:e})
+  })
+});
+
+nodeApp.get(Api.fetchCustomerPhone,(req,res)=>{
+  const customerId = req.query.customerId as string
+  getPhoneNumber(customerId).then((result)=>{
+    console.log(result);
+    res.json(result)
+  }).catch(e=>{
+    res.statusCode = 400
+    res.send("Customer not Found")
+  });
 })
+
 
     
  

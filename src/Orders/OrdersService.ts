@@ -1,6 +1,6 @@
 
 import { Database } from 'firebase-admin/lib/database/database';
-import { getCustomerExtras, getCustomerInfos } from '../Database/CustomersDatabase';
+import {  getCustomerStatus } from '../Database/CustomersDatabase';
 import {broadCastMessage} from './SocketManager';
 import OrderStatus from './Types';
 
@@ -13,14 +13,14 @@ async function listenToOrdersOnFirebase(){
         if(snapshot.key !== null){
             const orderSnapshot = snapshot.val()
         
-        getCustomerInfos(snapshot.key)
+        getCustomerStatus(snapshot.key)
         .then(infos=>{
             if(infos !== undefined){
                 broadCastMessage("newOrder",{
                     id :snapshot.key,
-                    customerName : infos.FullName,
-                    phoneNumber : infos.PhoneNumber,
-                    email : infos.Email,
+                    customerName : orderSnapshot.FullName,
+                    phoneNumber : orderSnapshot.PhoneNumber,
+                    email : orderSnapshot.Email,
                     banStatus : infos.BanStatus,
                     items : orderSnapshot.items
                 })
@@ -30,7 +30,6 @@ async function listenToOrdersOnFirebase(){
         }
     })
 }
-
 
 
 export async function onFirstConnectionOrders(callback:(orders:any)=>void) {
@@ -47,19 +46,15 @@ export async function onFirstConnectionOrders(callback:(orders:any)=>void) {
             childrenCount = snapshot.numChildren()
             snapshot.forEach((childSnapshot) => {
                 id = childSnapshot.key
-                getCustomerInfos(id).then(infos => {
+                getCustomerStatus(id).then(infos => {
                     result['id'] = id
-                    result = {...result, ...infos }
-                    getCustomerExtras(id).then(extras => {
-                        result = {...result, ...extras }
-                        result = {...result, ...childSnapshot.val() }
+                    result = {...result, ...childSnapshot.val() }
                         Orders[id] = result
                         currentCount++
                         result = {}
                         if(currentCount > childrenCount){
                             callback(Orders)
                         }
-                    })
                 })
             })
         }
@@ -80,20 +75,4 @@ export async function setUpFirebaseDatabase(database :Database) {
 }
 
 
-
-export async function decodeOrder(customerId:string ){
-    return Promise.resolve(
-        getCustomerExtras(customerId)
-        .then((customerExtras)=>{
-            return {
-                address: customerExtras.Address,
-                rating : customerExtras.Rating,
-                negativeRating : customerExtras.NegativeRating,
-                latitude : customerExtras.Latitude,
-                longitude : customerExtras.Longitude
-                
-            }
-        }
-    ))
-}
 

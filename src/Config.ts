@@ -24,3 +24,20 @@
         storage : "192.168.1.8:9199",
         storageEnvKey :"FIREBASE_STORAGE_EMULATOR_HOST"
     }
+
+    export const Api = {
+        createCategory : "/CreateCategory",
+        updateCategory : "/UpdateCategory",
+        fetchCategory : "/FetchCategory",
+        deleteCategory : "/DeleteCategory",
+        createProduct : "/CreateProduct",
+        updateProduct : "/UpdateProduct",
+        fetchProduct : "/FetchProduct",
+        deleteProduct : "/DeleteProduct",
+        synchroniseDatabase : "/SynchroniseDatabase",
+        banCustomer : "/BanCustomer",
+        rateCustomer : "/RateCustomer",
+        updateCustomerPhone : "/UpdateCustomerPhone",
+        fetchCustomerPhone : '/FetchCustomerPhone'
+        
+    }

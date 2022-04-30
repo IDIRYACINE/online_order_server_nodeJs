@@ -21,3 +21,18 @@ export declare const Emulator: {
     storage: string;
     storageEnvKey: string;
 };
+export declare const Api: {
+    createCategory: string;
+    updateCategory: string;
+    fetchCategory: string;
+    deleteCategory: string;
+    createProduct: string;
+    updateProduct: string;
+    fetchProduct: string;
+    deleteProduct: string;
+    synchroniseDatabase: string;
+    banCustomer: string;
+    rateCustomer: string;
+    updateCustomerPhone: string;
+    fetchCustomerPhone: string;
+};
