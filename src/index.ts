@@ -18,7 +18,7 @@ nodeApp.use(cors({
 nodeApp.use(express.json())
 
 const server = nodeApp.listen(process.env.PORT || 3001);
-App(true,server)
+App(false,server)
 
 nodeApp.post(Api.createCategory, (req, res) => {  
   createCategory(req.body.options)
@@ -156,6 +156,8 @@ nodeApp.post(Api.banCustomer, (req, res) => {
 
 nodeApp.post(Api.updateCustomerPhone, (req, res) => {
   const options = req.body
+  console.log(options)
+
   registerPhoneNumber(options.Id , options.PhoneNumber)
   .then(()=>{
     res.send("Updated")

@@ -14,7 +14,8 @@ export default function createSocket(server : http.Server){
         cors : {
             origin :['https://idiryacine.github.io/online_order_server_app/',
             'https://idiryacine.github.io',
-            'https://github.com'
+            'https://github.com',
+            'http://localhost:3000'
         ],
             allowedHeaders: ["my-custom-header"],
             

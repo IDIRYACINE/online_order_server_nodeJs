@@ -28,33 +28,37 @@ export async function setUpCustomerDatabase(){
 
 
 export async function BanCustomer(customer : any){
-    let update_customer_banStatus_query = "UPDATE" + configurations.secondaryTable
-        + "Set BanStatus = " + customer.banStatus + " WHERE Id = " + customer.id
+    let update_customer_banStatus_query = `UPDATE ${configurations.secondaryTable} 
+    Set BanStatus = + ?  WHERE Id = ? `
 
-    connection.prepare(update_customer_banStatus_query).run()   
+    connection.prepare(update_customer_banStatus_query).run([customer.banStatus,customer.id])   
 }
 
 export async function RateCustomer(customer : any){
     let update_customer_banStatus_query = "UPDATE" + configurations.secondaryTable
-    + `Set Rating = Rating + ${customer.rating}, NegativeRating = NegativeRating + ${customer.negativeRating} WHERE Id = ${customer.id}`
-    connection.prepare(update_customer_banStatus_query).run()
+    + `Set Rating = Rating + ?, NegativeRating = NegativeRating + ? WHERE Id = ?`
+    connection.prepare(update_customer_banStatus_query).run([customer.rating,customer.negativeRating,customer.id])
 }
 
 export async function getCustomerStatus(customerId : string){
-    let get_customer_infos = `SELECT ${GetValuesHelper("infos")} FROM ${configurations.mainTable} WHERE Id = '${customerId}'`
-    return await connection.prepare(get_customer_infos).get()
+    let get_customer_infos = `SELECT ${GetValuesHelper("infos")} FROM ${configurations.mainTable} WHERE Id = ?`
+    return await connection.prepare(get_customer_infos).get([customerId])
 
 }
 
 export async function getPhoneNumber(customerId : string){
-    let get_customer_phone = `SELECT PhoneNumber FROM ${configurations.mainTable} WHERE Id = ${customerId}`
-    return await connection.prepare(get_customer_phone).get()
+    let get_customer_phone = `SELECT PhoneNumber FROM ${configurations.mainTable} WHERE Id = ?`
+    return await connection.prepare(get_customer_phone).get([customerId])
 }
 
 export async function registerPhoneNumber(customerId : string,newPhone : string){
-    let update_phone_query = `UPDATE ${configurations.mainTable} WHERE Id = ${customerId} 
-                            Set PhoneNumber = ${newPhone}`
-    connection.prepare(update_phone_query).run()                            
+    let update_phone_query = `INSERT INTO ${configurations.mainTable} (Id,PhoneNumber)
+    VALUES(?,?) 
+    ON CONFLICT(Id) 
+    DO UPDATE SET PhoneNumber=${newPhone};`
+
+    console.log(update_phone_query)                        
+    connection.prepare(update_phone_query).run([customerId,newPhone])                            
 }
 
 

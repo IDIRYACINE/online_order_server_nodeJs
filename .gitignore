@@ -4,3 +4,5 @@
 npm-debug.log
 .DS_Store
 /*.env
+data/Customers.db
+data/Products.db
