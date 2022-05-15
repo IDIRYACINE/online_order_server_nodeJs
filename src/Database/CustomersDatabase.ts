@@ -11,7 +11,7 @@ export async function setUpCustomerDatabase(){
     PhoneNumber string ,
     Rating real DEFAULT 0,
     NegativeRating real DEFAULT 0,
-    BanStatus bool DEFAULT true 
+    BanStatus bool DEFAULT false 
     )`
 
     const create_areas_table_query = `CREATE TABLE IF NOT EXISTS ${configurations.secondaryTable}(
@@ -20,7 +20,7 @@ export async function setUpCustomerDatabase(){
     Longitude real ,
     Rating real DEFAULT 0,
     NegativeRating real DEFAULT 0,
-    BanStatus bool DEFAULT true )`
+    BanStatus bool DEFAULT false )`
 
     connection.prepare(create_customers_table_query).run()
     connection.prepare(create_areas_table_query).run()

@@ -8,4 +8,6 @@ declare enum Status {
     Cooking = 2,
     Delivering = 3
 }
+
+
 export default OrderStatus;

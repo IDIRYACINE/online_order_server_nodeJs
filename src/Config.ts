@@ -9,9 +9,9 @@
         databaseName : "Customers.db",
         databaseUrl : "./data",
         mainTable : "Customers",
-        mainTableAttrbs : ["FullName","Email","PhoneNumber","BanStatus"],
+        mainTableAttrbs : ["PhoneNumber","BanStatus"],
         secondaryTable : "Extras",
-        secondaryTableAttrbs : ["Rating","NegativeRating","Latitude","Longitude","Address"]
+        secondaryTableAttrbs : ["Rating","NegativeRating","Latitude","Longitude"]
     }
 
     export const Emulator = {
@@ -38,6 +38,7 @@
         banCustomer : "/BanCustomer",
         rateCustomer : "/RateCustomer",
         updateCustomerPhone : "/UpdateCustomerPhone",
-        fetchCustomerPhone : '/FetchCustomerPhone'
+        fetchCustomerPhone : '/FetchCustomerPhone',
+        updateOrderStatus : '/UpdateOrderStatus',
         
     }

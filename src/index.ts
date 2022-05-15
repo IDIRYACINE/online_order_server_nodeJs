@@ -6,6 +6,7 @@ import App from './App';
 import { SynchroniseDatabase } from './Storage/StorageService';
 import { Api } from './Config';
 import { BanCustomer, getPhoneNumber, RateCustomer, registerPhoneNumber } from './Database/CustomersDatabase';
+import { updateOrderStatus } from './Orders/OrdersService';
 
 const nodeApp = express();
 
@@ -156,7 +157,6 @@ nodeApp.post(Api.banCustomer, (req, res) => {
 
 nodeApp.post(Api.updateCustomerPhone, (req, res) => {
   const options = req.body
-  console.log(options)
 
   registerPhoneNumber(options.Id , options.PhoneNumber)
   .then(()=>{
@@ -170,13 +170,27 @@ nodeApp.post(Api.updateCustomerPhone, (req, res) => {
 nodeApp.get(Api.fetchCustomerPhone,(req,res)=>{
   const customerId = req.query.customerId as string
   getPhoneNumber(customerId).then((result)=>{
-    console.log(result);
     res.json(result)
   }).catch(e=>{
     res.statusCode = 400
     res.send("Customer not Found")
   });
 })
+
+
+nodeApp.post(Api.updateCustomerPhone, (req, res) => {
+  const options = req.body
+
+  updateOrderStatus(options)
+  .then(()=>{
+    res.send("Updated")
+  })
+  .catch(e=>{
+    res.json({error:e})
+  })
+});
+
+
 
 
     
