@@ -54,10 +54,9 @@ export async function getPhoneNumber(customerId : string){
 export async function registerPhoneNumber(customerId : string,newPhone : string){
     let update_phone_query = `INSERT INTO ${configurations.mainTable} (Id,PhoneNumber)
     VALUES(?,?) 
-    ON CONFLICT(Id) 
+    ON CONFLICT 
     DO UPDATE SET PhoneNumber=${newPhone};`
 
-    console.log(update_phone_query)                        
     connection.prepare(update_phone_query).run([customerId,newPhone])                            
 }
 

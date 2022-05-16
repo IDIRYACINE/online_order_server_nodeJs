@@ -64,14 +64,13 @@ export async function onFirstConnectionOrders(callback:(orders:any)=>void) {
 
 async function orderFormater(key : string ,orderSnapshot : any , infos:any , onSuccess:(order:Order)=>void ) {
     const statusRef = firebaseRealTime.ref("OrdersStatus")
-
     statusRef.child(key).once("value", (statusSnapshot) => {
         onSuccess( {
             id :key,
             customerName : orderSnapshot.fullName,
             phoneNumber : orderSnapshot.phoneNumber,
             email : orderSnapshot.email,
-            banStatus : infos.banStatus,
+            banStatus : false,
             state : statusSnapshot.val().status,
             latitude : orderSnapshot.latitude,
             longitude : orderSnapshot.longitude,

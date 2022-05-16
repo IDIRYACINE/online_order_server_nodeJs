@@ -112,7 +112,7 @@ nodeApp.get(Api.deleteProduct, (req, res) => {
 
 
 nodeApp.post(Api.updateProduct, (req, res) => {
-  updateProduct(JSON.parse(req.body.options))
+  updateProduct(req.body.options)
   .then(()=>{
     res.json({response:"Updated Product"})
   })
@@ -157,8 +157,7 @@ nodeApp.post(Api.banCustomer, (req, res) => {
 
 nodeApp.post(Api.updateCustomerPhone, (req, res) => {
   const options = req.body
-
-  registerPhoneNumber(options.Id , options.PhoneNumber)
+  registerPhoneNumber(options.id , options.phoneNumber)
   .then(()=>{
     res.send("Updated")
   })
@@ -178,9 +177,10 @@ nodeApp.get(Api.fetchCustomerPhone,(req,res)=>{
 })
 
 
-nodeApp.post(Api.updateCustomerPhone, (req, res) => {
-  const options = req.body
 
+
+nodeApp.post(Api.updateOrderStatus, (req, res) => {
+  const options = req.body.status
   updateOrderStatus(options)
   .then(()=>{
     res.send("Updated")
@@ -190,8 +190,4 @@ nodeApp.post(Api.updateCustomerPhone, (req, res) => {
   })
 });
 
-
-
-
-    
  
