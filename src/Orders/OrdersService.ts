@@ -1,42 +1,28 @@
 
 import { Database } from 'firebase-admin/lib/database/database';
-import {  getCustomerStatus } from '../Database/CustomersDatabase';
 import {broadCastMessage} from './SocketManager';
 import OrderStatus, { Order } from './Types';
 
 let firebaseRealTime : Database
-
 
 async function listenToOrdersOnFirebase(){
     const ordersRef =  firebaseRealTime.ref("Orders")
     ordersRef.on("child_added" ,(snapshot) => {
         if(snapshot.key !== null){
             const orderSnapshot = snapshot.val()
-        
-        getCustomerStatus(snapshot.key)
-        .then(infos=>{
-            if(infos !== undefined){
-                orderFormater(snapshot.key! , orderSnapshot,infos , (order:Order)=>{
-                    broadCastMessage("newOrder",order)
-                })
-               
-            }
-            
-        })
+            orderFormater(snapshot.key! , orderSnapshot , (order:Order)=>{
+                broadCastMessage("newOrder",order)
+            })
         }
     })
 }
 
-
 export async function onFirstConnectionOrders(callback:(orders:any)=>void) {
     const ordersRef =  firebaseRealTime.ref("Orders")
-    let Orders : any  = {}
-    
-    let id :any;
-    let result : any = {}
+
+    let id :any
     let childrenCount : number
-    let currentCount = 1
-    let value :any;
+    let value :any
 
     ordersRef.once("value",(snapshot) =>{
         if(snapshot.exists()){
@@ -44,25 +30,14 @@ export async function onFirstConnectionOrders(callback:(orders:any)=>void) {
             snapshot.forEach((childSnapshot) => {
                 id = childSnapshot.key
                 value = childSnapshot.val()
-                getCustomerStatus(id).then(infos => {
-                    result['id'] = id
-                    orderFormater(id,value,infos,(order:Order)=>{
-                        result = {...result, ...order}
-                        Orders[id] = result
-                        currentCount++
-                        result = {}
-                        if(currentCount > childrenCount){
-                            callback(Orders)
-                        }
-                    })                  
-                })
+                orderFormater(id,value,callback)    
             })
         }
     })
                 
 }
 
-async function orderFormater(key : string ,orderSnapshot : any , infos:any , onSuccess:(order:Order)=>void ) {
+async function orderFormater(key : string ,orderSnapshot : any , onSuccess:(order:Order)=>void ) {
     const statusRef = firebaseRealTime.ref("OrdersStatus")
     statusRef.child(key).once("value", (statusSnapshot) => {
         onSuccess( {
@@ -84,9 +59,9 @@ async function orderFormater(key : string ,orderSnapshot : any , infos:any , onS
     
 }
 
-export async function updateOrderStatus(status : OrderStatus){
+export async function updateOrderStatus(order : OrderStatus){
     const statusRef = firebaseRealTime.ref("OrdersStatus")
-    statusRef.child(status.id).set(status.state)
+    statusRef.child(order.id).set({status : order.status})
 }
 
 export async function setUpFirebaseDatabase(database :Database) {

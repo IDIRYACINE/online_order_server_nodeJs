@@ -1,7 +1,7 @@
 
 interface OrderStatus{
     id : string
-    state : Status
+    status : Status
 }
 
 enum Status{

@@ -32,7 +32,7 @@ export default function createSocket(server : http.Server){
 
     io.on("connection" , (socket : any) => {
         onFirstConnectionOrders((Orders:any)=>{
-            broadCastMessage('onConnectOrders',Orders)
+            broadCastMessage('newOrder',Orders)
         })
         
         }
